@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://ui01n6dvym8b"]
+
+[node name="Hex" type="Node2D"]
+
+[node name="Polygon2D" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(5, 0, 2.5, 4.33, -2.5, 4.33, -5, 0, -2.5, -4.33, 2.5, -4.33)
