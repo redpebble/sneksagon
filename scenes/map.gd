@@ -1,83 +1,99 @@
 extends Node2D
 
-enum Direction {
-	UP, UP_LEFT, UP_RIGHT, DOWN, DOWN_LEFT, DOWN_RIGHT
-}
-
 const SCALE = 6
 const SIDE_LENGTH = 5
 const w = SIDE_LENGTH * 2 * SCALE
 
+@export_range(0.0, 0.5, 0.05) var grid_contrast : float = 0.15
+
 var hex_scn = preload("res://scenes/hex.tscn")
 
-var hex_dict: Dictionary[Vector2, Node2D] = {}
+var map : Dictionary[Vector2, Node2D] = {}
+var entities : Dictionary[Vector2, Node2D] = {}
 var map_origin := Vector2.ZERO
+var move_tween : Tween = null
+var player_hex = null
 
 
 func _ready() -> void:
-	populate_map()
-	#create_grid()
-	create_hex(2, 4, Color(randf(), randf(), randf()))
-	await move_hex_adjacent(Vector2(2, 4), Direction.UP).finished
-	await move_hex_adjacent(Vector2(2, 3), Direction.UP_RIGHT).finished
-	await move_hex_adjacent(Vector2(3, 2), Direction.DOWN_RIGHT).finished
-	await move_hex_adjacent(Vector2(4, 2), Direction.DOWN).finished
-	await move_hex_adjacent(Vector2(4, 3), Direction.DOWN_LEFT).finished
-	move_hex_adjacent(Vector2(3, 4), Direction.UP_LEFT)
+	populate_grid()
+	player_hex = create_hex(2, 4, Color.BLACK, true)
 
-func get_hex_screen_position(i, j, offset := Vector2.ZERO) -> Vector2:
-	var w = SIDE_LENGTH * 2 * SCALE
+func _process(_delta: float) -> void:
+	move_player()
+
+
+func move_player():
+	if not player_hex:
+		return
+	if move_tween and move_tween.is_running():
+		return
+	#get player coordinates
+	var player_pos = player_hex.global_position
+	var player_coords = get_hex_coordinates(player_pos)
+	#get input direction
+	var input_vector : Vector2 = player_pos.direction_to(get_global_mouse_position())
+	var move_direction : Vector2
+	move_direction.x = roundi(input_vector.x)
+	#max out vertical input to eliminate "sticky" horizontal movement
+	move_direction.y = ceili(abs(input_vector.y)) * sign(input_vector.y)
+	#move when holding mouse button
+	if Input.is_action_pressed("lmb"):
+		move_hex_adjacent(player_coords, move_direction)
+
+
+# use hex coordinates to get position in world
+func get_hex_world_position(i, j, offset := Vector2.ZERO) -> Vector2:
 	var x = 0.75 * w * i
 	var y = 0.866 * w * (j + 0.5 * i)
 	return Vector2(x, y) + offset
+# use world position to derive hex coordinates
+func get_hex_coordinates(world_position : Vector2) -> Vector2:
+	world_position -= map_origin
+	var i = roundi(world_position.x / (0.75 * w))
+	var j = roundi(world_position.y / (0.866 * w) - 0.5 * i)
+	return Vector2i(i, j)
 
-func get_adjacent_hex_index(i, j, direction) -> Vector2:
+func get_adjacent_hex_index(coords : Vector2, direction : Vector2) -> Vector2:
 	match direction:
-		Direction.UP:         return Vector2(i, j-1)
-		Direction.UP_LEFT:    return Vector2(i-1, j)
-		Direction.UP_RIGHT:   return Vector2(i+1, j-1)
-		Direction.DOWN:       return Vector2(i, j+1)
-		Direction.DOWN_LEFT:  return Vector2(i-1, j+1)
-		Direction.DOWN_RIGHT: return Vector2(i+1, j)
-		_: return Vector2(i, j)
+		Vector2.UP:                   return coords + Vector2(0, -1)
+		Vector2.UP + Vector2.LEFT:    return coords + Vector2(-1, 0)
+		Vector2.UP + Vector2.RIGHT:   return coords + Vector2(1, -1)
+		Vector2.DOWN:                 return coords + Vector2(0, 1)
+		Vector2.DOWN + Vector2.LEFT:  return coords + Vector2(-1, 1)
+		Vector2.DOWN + Vector2.RIGHT: return coords + Vector2(1, 0)
+		_: return coords
 
-func create_hex(i, j, hex_color):
+func create_hex(i, j, hex_color, is_entitiy := false) -> Node2D:
 	var hex = hex_scn.instantiate()
 	hex.scale *= SCALE
-	hex.position = get_hex_screen_position(i, j, map_origin)
+	hex.position = get_hex_world_position(i, j, map_origin)
 	hex.modulate = hex_color
 	call_deferred("add_child", hex)
-	hex_dict[Vector2(i, j)] = hex
+	if is_entitiy:
+		entities[Vector2(i, j)] = hex
+		print(Vector2(i, j))
+	else:
+		map[Vector2(i, j)] = hex
+	return hex
 
-func create_grid():
-	var w = SIDE_LENGTH * 2 * SCALE
-	var i = 0
-	while ((i-1) * w * 0.75 < get_window().size.x):
-		var j = floori(0.5 * i) * -1
-		while ((j-1) * w * 0.886 < get_window().size.y):
-			var d = wrapi(j - wrapi(i, 0, 3), 0, 3) / 15.0
-			create_hex(i, j, Color.WHITE.darkened(d))
-			j += 1
-		i += 1
+func move_hex(from : Vector2, to : Vector2, duration := 0.3) -> Tween:
+	if move_tween:
+		move_tween.kill()
+	var hex := entities[from]
+	move_tween = create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_SINE)
+	move_tween.tween_property(hex, "position", get_hex_world_position(to.x, to.y, map_origin), duration)
+	entities.erase(from)
+	entities[to] = hex
+	return move_tween
 
+func move_hex_adjacent(from: Vector2, direction : Vector2) -> Tween:
+	return move_hex(from, get_adjacent_hex_index(from, direction))
 
-func move_hex(from : Vector2, to : Vector2) -> Tween:
-	var hex := hex_dict[from]
-	var t = create_tween()
-	t.set_ease(Tween.EASE_IN_OUT)
-	t.set_trans(Tween.TRANS_CUBIC)
-	t.tween_property(hex, "position", get_hex_screen_position(to.x, to.y, map_origin), 1.0)
-	hex_dict.erase(from)
-	hex_dict[to] = hex
-	return t
-
-func move_hex_adjacent(from: Vector2, direction: Direction) -> Tween:
-	return move_hex(from, get_adjacent_hex_index(from.x, from.y, direction))
-
-
-func populate_map():
-	var cols = floor(get_window().size.x / w / 0.75)
-	var rows = floor(get_window().size.y / w / 0.866)
+func populate_grid():
+	var playfield = get_window().size * 0.75
+	var cols = floor(playfield.x / w / 0.75)
+	var rows = floor(playfield.y / w / 0.866)
 	var window_center : Vector2 = get_window().size * 0.5
 	var map_dimensions := Vector2(cols, rows)
 	
@@ -85,6 +101,7 @@ func populate_map():
 	
 	for i in map_dimensions.x:
 		for j in map_dimensions.y:
-			var adjusted_j = floori(0.5 * i) * -1 + j
-			var d = wrapi(adjusted_j - wrapi(i, 0, 3), 0, 3) / 15.0
+			var shift_amount = floori(0.5 * i) * -1
+			var adjusted_j = j + shift_amount
+			var d = wrapi(adjusted_j - wrapi(i, 0, 3), 0, 3) * grid_contrast
 			create_hex(i, adjusted_j, Color.WHITE.darkened(d))
