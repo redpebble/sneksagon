@@ -1,5 +1,9 @@
 extends Node2D
 
+enum Direction {
+	UP, UP_LEFT, UP_RIGHT, DOWN, DOWN_LEFT, DOWN_RIGHT
+}
+
 const SCALE = 6
 const SIDE_LENGTH = 5
 
@@ -8,10 +12,14 @@ var hex_scn = preload("res://scenes/hex.tscn")
 var hex_dict: Dictionary[Vector2, Node2D] = {}
 
 func _ready() -> void:
-	#populate_map()
-	create_hex(3, 3)
-	await move_hex(Vector2(3, 3), Vector2(3, 4)).finished
-	move_hex(Vector2(3, 4), Vector2(4, 4))
+	create_grid()
+	create_hex(2, 4, Color(randf(), randf(), randf()))
+	await move_hex_adjacent(Vector2(2, 4), Direction.UP).finished
+	await move_hex_adjacent(Vector2(2, 3), Direction.UP_RIGHT).finished
+	await move_hex_adjacent(Vector2(3, 2), Direction.DOWN_RIGHT).finished
+	await move_hex_adjacent(Vector2(4, 2), Direction.DOWN).finished
+	await move_hex_adjacent(Vector2(4, 3), Direction.DOWN_LEFT).finished
+	move_hex_adjacent(Vector2(3, 4), Direction.UP_LEFT)
 
 func get_hex_screen_position(i, j) -> Vector2:
 	var w = SIDE_LENGTH * 2 * SCALE
@@ -19,24 +27,32 @@ func get_hex_screen_position(i, j) -> Vector2:
 	var y = 0.866 * w * (j + 0.5 * i)
 	return Vector2(x, y)
 
-func create_hex(i, j):
+func get_adjacent_hex_index(i, j, direction) -> Vector2:
+	match direction:
+		Direction.UP:         return Vector2(i, j-1)
+		Direction.UP_LEFT:    return Vector2(i-1, j)
+		Direction.UP_RIGHT:   return Vector2(i+1, j-1)
+		Direction.DOWN:       return Vector2(i, j+1)
+		Direction.DOWN_LEFT:  return Vector2(i-1, j+1)
+		Direction.DOWN_RIGHT: return Vector2(i+1, j)
+		_: return Vector2(i, j)
+
+func create_hex(i, j, hex_color):
 	var hex = hex_scn.instantiate()
 	hex.scale *= SCALE
 	hex.position = get_hex_screen_position(i, j)
-	hex.modulate = Color(randf(), randf(), randf())
+	hex.modulate = hex_color
 	call_deferred("add_child", hex)
 	hex_dict[Vector2(i, j)] = hex
 
-func populate_map():
+func create_grid():
 	var w = SIDE_LENGTH * 2 * SCALE
-
 	var i = 0
 	while ((i-1) * w * 0.75 < get_window().size.x):
 		var j = floori(0.5 * i) * -1
 		while ((j-1) * w * 0.886 < get_window().size.y):
-
-			create_hex(i, j)
-
+			var d = wrapi(j - wrapi(i, 0, 3), 0, 3) / 15.0
+			create_hex(i, j, Color.WHITE.darkened(d))
 			j += 1
 		i += 1
 
@@ -51,7 +67,11 @@ func move_hex(from : Vector2, to : Vector2) -> Tween:
 	hex_dict[to] = hex
 	return t
 
-#func populate_map():
+func move_hex_adjacent(from: Vector2, direction: Direction) -> Tween:
+	return move_hex(from, get_adjacent_hex_index(from.x, from.y, direction))
+
+
+#func create_grid():
 	#var unit_w = calculate_diagonal() * SCALE * 1.5
 	#var unit_h = calculate_inradius() * SCALE
 	#
