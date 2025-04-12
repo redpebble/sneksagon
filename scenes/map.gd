@@ -1,10 +1,9 @@
 extends Node2D
 
-const SCALE = 6
-const SIDE_LENGTH = 5
-const w = SIDE_LENGTH * 2 * SCALE
-
+@export_range(3, 30, 1) var hex_scale: int = 15
 @export_range(0.0, 0.5, 0.05) var grid_contrast : float = 0.15
+
+@onready var hex_width = 2 * hex_scale
 
 var hex_scn = preload("res://scenes/hex.tscn")
 
@@ -44,14 +43,14 @@ func move_player():
 
 # use hex coordinates to get position in world
 func get_hex_world_position(i, j, offset := Vector2.ZERO) -> Vector2:
-	var x = 0.75 * w * i
-	var y = 0.866 * w * (j + 0.5 * i)
+	var x = 0.75 * hex_width * i
+	var y = 0.866 * hex_width * (j + 0.5 * i)
 	return Vector2(x, y) + offset
 # use world position to derive hex coordinates
 func get_hex_coordinates(world_position : Vector2) -> Vector2:
 	world_position -= map_origin
-	var i = roundi(world_position.x / (0.75 * w))
-	var j = roundi(world_position.y / (0.866 * w) - 0.5 * i)
+	var i = roundi(world_position.x / (0.75 * hex_width))
+	var j = roundi(world_position.y / (0.866 * hex_width) - 0.5 * i)
 	return Vector2i(i, j)
 
 func get_adjacent_hex_index(coords : Vector2, direction : Vector2) -> Vector2:
@@ -64,13 +63,13 @@ func get_adjacent_hex_index(coords : Vector2, direction : Vector2) -> Vector2:
 		Vector2.DOWN + Vector2.RIGHT: return coords + Vector2(1, 0)
 		_: return coords
 
-func create_hex(i, j, hex_color, is_entitiy := false) -> Node2D:
+func create_hex(i, j, hex_color, is_entity := false) -> Node2D:
 	var hex = hex_scn.instantiate()
-	hex.scale *= SCALE
+	hex.scale *= hex_scale
 	hex.position = get_hex_world_position(i, j, map_origin)
 	hex.modulate = hex_color
 	call_deferred("add_child", hex)
-	if is_entitiy:
+	if is_entity:
 		entities[Vector2(i, j)] = hex
 		print(Vector2(i, j))
 	else:
@@ -92,12 +91,12 @@ func move_hex_adjacent(from: Vector2, direction : Vector2) -> Tween:
 
 func populate_grid():
 	var playfield = get_window().size * 0.75
-	var cols = floor(playfield.x / w / 0.75)
-	var rows = floor(playfield.y / w / 0.866)
+	var cols = floor(playfield.x / hex_width / 0.75)
+	var rows = floor(playfield.y / hex_width / 0.866)
 	var window_center : Vector2 = get_window().size * 0.5
 	var map_dimensions := Vector2(cols, rows)
 	
-	map_origin = window_center - (map_dimensions - Vector2(1.0, 0.5)) * Vector2(0.75, 0.866) * w * 0.5
+	map_origin = window_center - (map_dimensions - Vector2(1.0, 0.5)) * Vector2(0.75, 0.866) * hex_width * 0.5
 	
 	for i in map_dimensions.x:
 		for j in map_dimensions.y:
