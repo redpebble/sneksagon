@@ -61,18 +61,18 @@ func get_move_position(mover : Node2D, direction : Vector2) -> Vector2:
 	return move_position
 
 func populate_grid():
-	var playfield = get_window().size * 0.75
-	var cols = floor(playfield.x / hex_width / 0.75)
-	var rows = floor(playfield.y / hex_width / 0.866)
+	var playfield : Vector2 = get_window().size * 0.75
+	var cols : int = floori(playfield.x / hex_width / 0.75)
+	var rows : int = floori(playfield.y / hex_width / 0.866)
 	var window_center : Vector2 = get_window().size * 0.5
-	var map_dimensions := Vector2(cols, rows)
-	
-	map_origin = window_center - (map_dimensions - Vector2(1.0, 0.5)) * Vector2(0.75, 0.866) * hex_width * 0.5
+	var map_dimensions := Vector2i(cols, rows)
+	var map_size = (Vector2(map_dimensions) - Vector2(1.0, 0.5)) * Vector2(0.75, 0.866) * hex_width
+	map_origin = window_center - (map_size * 0.5)
 	
 	for i in map_dimensions.x:
 		for j in map_dimensions.y:
-			var shift_amount = floori(0.5 * i) * -1
-			var adjusted_j = j + shift_amount
+			var shift_amount : int = floori(0.5 * i) * -1
+			var adjusted_j   : int = j + shift_amount
 			var d = wrapi(adjusted_j - wrapi(i, 0, 3), 0, 3) * grid_contrast
 			create_hex(static_hex_scn, Vector2(i, adjusted_j), Color.WHITE.darkened(d))
 

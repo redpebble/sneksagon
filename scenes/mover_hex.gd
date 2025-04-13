@@ -16,12 +16,11 @@ var max_length := 5
 
 
 func _ready() -> void:
-	print("prev_segment: ", prev_segment)
 	if prev_segment == null:
 		head = self
 	scale *= 0.8
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	read_inputs()
 	queue_redraw()
 
@@ -49,7 +48,7 @@ func move(direction, duration := 0.25) -> Tween:
 	last_position = global_position
 	var move_position = map.get_move_position(self, round_hexagonal(direction))
 	# do not "move" if position would not change
-	### FIXME: look here to deal with collisions
+	## FIXME: look here to deal with collisions
 	if is_head() and move_position == last_position:
 		return
 	# all other segments replace the position of their predecessor
