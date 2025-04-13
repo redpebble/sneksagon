@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://b2k5i8r31na11"]
+
+[ext_resource type="Script" uid="uid://dg2mjerm3lr0j" path="res://scenes/mover_hex.gd" id="1_pig4h"]
+
+[node name="MoverHex" type="Node2D"]
+script = ExtResource("1_pig4h")
+
+[node name="Polygon2D" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(1, 0, 0.5, 0.866, -0.5, 0.866, -1, 0, -0.5, -0.866, 0.5, -0.866)

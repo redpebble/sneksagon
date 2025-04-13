@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://ui01n6dvym8b"]
+
+[ext_resource type="Script" uid="uid://bpawfpvq563jl" path="res://scenes/hex.gd" id="1_s67ao"]
+
+[node name="StaticHex" type="Node2D"]
+script = ExtResource("1_s67ao")
+
+[node name="Polygon2D" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(1, 0, 0.5, 0.866, -0.5, 0.866, -1, 0, -0.5, -0.866, 0.5, -0.866)
