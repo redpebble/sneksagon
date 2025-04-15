@@ -2,6 +2,7 @@ extends Node2D
 
 @export_range(3, 30, 1) var hex_scale: int = 15
 @export_range(0.0, 0.5, 0.05) var grid_contrast : float = 0.15
+@export_range(0.0, 1.0, 0.05) var grid_brightness : float = 0.6
 @export var static_hex_scn : PackedScene = null
 @export var mover_hex_scn : PackedScene = null
 
@@ -13,6 +14,7 @@ var map_origin := Vector2.ZERO
 
 
 func _ready() -> void:
+	Highlighter.scale_to_width(hex_width)
 	populate_grid()
 	create_hex(mover_hex_scn, Vector2(2, 4), Color.BLACK)
 
@@ -74,9 +76,10 @@ func populate_grid():
 			var shift_amount : int = floori(0.5 * i) * -1
 			var adjusted_j   : int = j + shift_amount
 			var d = wrapi(adjusted_j - wrapi(i, 0, 3), 0, 3) * grid_contrast
+			d += 1.0 - grid_brightness
 			create_hex(static_hex_scn, Vector2(i, adjusted_j), Color.WHITE.darkened(d))
 
-# update entities when any are moved
+# update entity data when moved
 func _on_hex_moved(hex : Hex, from : Vector2, to : Vector2):
 	var from_coords = get_hex_coords(from)
 	var to_coords = get_hex_coords(to)

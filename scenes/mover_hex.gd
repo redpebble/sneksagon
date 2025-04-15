@@ -16,6 +16,7 @@ var max_length := 5
 
 
 func _ready() -> void:
+	z_index = 10
 	if prev_segment == null:
 		head = self
 	scale *= 0.8
@@ -36,17 +37,26 @@ func read_inputs():
 		return
 	if move_tween and move_tween.is_running():
 		return
-	var input_vector : Vector2 = global_position.direction_to(get_global_mouse_position())
+	update_highlight()
 	if Input.is_action_pressed("lmb"):
-		move(input_vector)
+		move()
 
+func update_highlight():
+	var show_highlight : bool = (get_move_position() != global_position)
+	Highlighter.highlight_position(get_move_position(), show_highlight)
 
-func move(direction, duration := 0.25) -> Tween:
+func get_move_position() -> Vector2:
+	return map.get_move_position(self, round_hexagonal(get_input_vector()))
+func get_input_vector():
+	var mouse_input_vector := global_position.direction_to(get_global_mouse_position())
+	return mouse_input_vector
+
+func move(duration := 0.25) -> Tween:
 	if move_tween:
 		move_tween.kill()
 	
 	last_position = global_position
-	var move_position = map.get_move_position(self, round_hexagonal(direction))
+	var move_position = get_move_position()
 	# do not "move" if position would not change
 	## FIXME: look here to deal with collisions
 	if is_head() and move_position == last_position:
@@ -58,7 +68,7 @@ func move(direction, duration := 0.25) -> Tween:
 	move_tween.tween_property(self, "global_position", move_position, duration)
 	
 	if next_segment:
-		next_segment.move(next_segment.global_position.direction_to(last_position))
+		next_segment.move()
 	
 	## FIXME Just for testing ##
 	if is_head():
@@ -87,6 +97,7 @@ func extend():
 		next_segment.head = head
 	else:
 		next_segment.extend()
+
 
 func is_head():
 	return head == self
