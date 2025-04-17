@@ -29,7 +29,7 @@ func update_highlight():
 func get_move_position() -> Vector2:
 	return map.get_move_position(head, round_hexagonal(get_input_vector()))
 func get_input_vector() -> Vector2:
-	var mouse_input_vector := global_position.direction_to(get_global_mouse_position())
+	var mouse_input_vector := head.global_position.direction_to(get_global_mouse_position())
 	return mouse_input_vector
 
 func move(duration := 0.25) -> void:

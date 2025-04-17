@@ -14,5 +14,5 @@ func _draw() -> void:
 # overrides ObjectHex.move()
 func move(pos : Vector2, duration := 0.25) -> Tween:
 	if next_segment:
-		next_segment.move(last_position, duration)
+		next_segment.move(global_position, duration)
 	return super.move(pos, duration)
