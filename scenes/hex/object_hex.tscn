@@ -3,6 +3,6 @@
 [ext_resource type="PackedScene" uid="uid://b2k5i8r31na11" path="res://scenes/hex/hex.tscn" id="1_42sxs"]
 [ext_resource type="Script" uid="uid://cyohtf0mfy4sm" path="res://scenes/hex/object_hex.gd" id="2_jen7i"]
 
-[node name="Hex" instance=ExtResource("1_42sxs")]
+[node name="ObjectHex" instance=ExtResource("1_42sxs")]
 script = ExtResource("2_jen7i")
 connect_segments = true

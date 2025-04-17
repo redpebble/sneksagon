@@ -13,6 +13,8 @@ var entities : Dictionary[Vector2, Array] = {}
 var valid_coords : Dictionary[Vector2, bool] = {} # there is no Set structure in GDScript
 var grid_map_origin := Vector2.ZERO
 
+var apple_scene = preload("res://scenes/hex/apple_hex.tscn")
+
 # use hex coordinates to get position in world
 func get_hex_world_position(coords : Vector2, offset : Vector2 = grid_map_origin) -> Vector2:
 	var x = 0.75 * HEX_WIDTH * coords.x
@@ -36,7 +38,7 @@ func get_adjacent_hex_coords(coords : Vector2, direction : Vector2) -> Vector2:
 		Vector2.DOWN + Vector2.RIGHT: return coords + Vector2(1, 0)
 		_: return coords
 
-func create_hex(hex_node: Hex, coords : Vector2, color : Color) -> Node2D:
+func create_hex(hex_node: Hex, coords : Vector2, color : Color = Color.BLACK) -> Node2D:
 	hex_node.grid_coords = coords
 	hex_node.scale *= HEX_SCALE
 	hex_node.position = get_hex_world_position(coords)
@@ -59,3 +61,19 @@ func _on_hex_moved(hex : Hex, from_coords : Vector2, to_coords : Vector2):
 		if entities[from_coords].is_empty():
 			entities.erase(from_coords)
 	entities[to_coords] = [hex]
+
+
+func get_random_cell() -> Vector2:
+	var coords_list = valid_coords.keys()
+	return coords_list[randi_range(0, coords_list.size() - 1)]
+
+func get_random_empty_cell() -> Vector2: # this is not very good lol
+	var coords = null
+	while coords == null:
+		var check_coords = get_random_cell()
+		if entities.get(check_coords) == null:
+			coords = check_coords
+	return coords
+
+func spawn_apple() -> void:
+	create_hex(apple_scene.instantiate(), get_random_empty_cell())

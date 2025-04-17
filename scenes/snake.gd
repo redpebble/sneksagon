@@ -7,7 +7,6 @@ extends Node2D
 var snake_hex_scene = preload("res://scenes/hex/snake_hex.tscn")
 
 var head : SnakeHex = null
-var max_length := 5
 
 
 #func _ready() -> void:
@@ -37,8 +36,10 @@ func is_valid_move(to_coords: Vector2) -> bool:
 		return false
 	
 	var entities = MapManager.entities.get(to_coords)
-	if entities && !entities.has(get_tail()):
-		return false
+	if entities:
+		for e in entities:
+			if e is SnakeHex && e != get_tail():
+				return false
 	
 	return true
 
@@ -50,7 +51,13 @@ func move(duration := 0.25) -> void:
 	if !is_valid_move(to_coords):
 		return
 
-	extend()
+	var entities = MapManager.entities.get(to_coords)
+	if entities:
+		for e in entities:
+			if e is AppleHex:
+				extend()
+				e.eat()
+	
 	head.move(to_coords, duration)
 
 func round_hexagonal(base_vector) -> Vector2:
@@ -62,7 +69,6 @@ func round_hexagonal(base_vector) -> Vector2:
 	return hex_direction
 
 func extend() -> void:
-	if get_length() >= max_length : return
 	var tail := get_tail()
 	if tail:
 		var new_hex : SnakeHex = MapManager.create_hex(snake_hex_scene.instantiate(), tail.last_coords, color)

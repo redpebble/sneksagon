@@ -1,0 +1,7 @@
+[gd_scene load_steps=3 format=3 uid="uid://bxku4o1ucskd1"]
+
+[ext_resource type="PackedScene" uid="uid://cpjrl6jigt8x4" path="res://scenes/hex/object_hex.tscn" id="1_2jo77"]
+[ext_resource type="Script" uid="uid://j1xyknyy4m2t" path="res://scenes/hex/apple_hex.gd" id="2_tyydu"]
+
+[node name="AppleHex" instance=ExtResource("1_2jo77")]
+script = ExtResource("2_tyydu")
