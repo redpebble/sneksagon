@@ -1,15 +1,15 @@
 class_name Snake
 extends Node2D
 
-
+@export var color := Color.BLACK
 @onready var map = get_parent()
 
 var head : SnakeHex = null
 var max_length := 5
 
 
-func _ready() -> void:
-	z_index = 10 #place above highlight
+#func _ready() -> void:
+	#z_index = 10 #place above highlight
 
 func _process(_delta: float) -> void:
 	read_inputs()
@@ -23,11 +23,17 @@ func read_inputs():
 		move()
 
 func update_highlight():
-	var show_highlight : bool = (get_move_position() != global_position)
+	var show_highlight : bool = (get_move_position() != head.global_position)
 	Highlighter.highlight_position(get_move_position(), show_highlight)
 
 func get_move_position() -> Vector2:
-	return map.get_move_position(head, round_hexagonal(get_input_vector()))
+	var head_pos := head.global_position
+	var move_pos := head_pos
+	var potential_pos = map.get_move_position(head, round_hexagonal(get_input_vector()))
+	if potential_pos != head_pos:
+		move_pos = potential_pos
+	return move_pos
+
 func get_input_vector() -> Vector2:
 	var mouse_input_vector := head.global_position.direction_to(get_global_mouse_position())
 	return mouse_input_vector
@@ -36,9 +42,9 @@ func move(duration := 0.25) -> void:
 	if head.move_tween:
 		head.move_tween.kill()
 	var move_position = get_move_position()
-	extend()
-	head.move(move_position, duration)
-
+	if get_move_position() != head.global_position:
+		extend()
+		head.move(move_position, duration)
 
 func round_hexagonal(base_vector) -> Vector2:
 	var hex_direction : Vector2
@@ -48,16 +54,16 @@ func round_hexagonal(base_vector) -> Vector2:
 	#move when holding mouse button
 	return hex_direction
 
-
 func extend() -> void:
+	if get_length() >= max_length : return
 	var tail := get_tail()
 	if tail:
-		var new_hex : SnakeHex = map.create_hex(map.mover_hex_scn, map.get_hex_coords(tail.last_position), modulate)
+		var new_hex : SnakeHex = map.create_hex(map.mover_hex_scn, map.get_hex_coords(tail.last_position), color)
 		tail.next_segment = new_hex
 		new_hex.prev_segment = tail
 
 func make_head(hex_coords : Vector2) -> void:
-	head = map.create_hex(map.mover_hex_scn, hex_coords, modulate)
+	head = map.create_hex(map.mover_hex_scn, hex_coords, color)
 
 func get_tail() -> SnakeHex:
 	var current_hex := head

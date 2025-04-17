@@ -10,6 +10,7 @@ var move_tween : Tween = null
 
 
 func _ready() -> void:
+	z_index = 10
 	scale *= 0.8
 
 func _process(_delta: float) -> void:
