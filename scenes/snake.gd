@@ -41,10 +41,10 @@ func get_input_vector() -> Vector2:
 func move(duration := 0.25) -> void:
 	if head.move_tween:
 		head.move_tween.kill()
-	var move_position = get_move_position()
-	if get_move_position() != head.global_position:
+	var to_coords = MapManager.get_adjacent_hex_coords(head.grid_coords, round_hexagonal(get_input_vector()))
+	if to_coords != head.grid_coords:
 		extend()
-		head.move(move_position, duration)
+		head.move(to_coords, duration)
 
 func round_hexagonal(base_vector) -> Vector2:
 	var hex_direction : Vector2
@@ -58,7 +58,7 @@ func extend() -> void:
 	if get_length() >= max_length : return
 	var tail := get_tail()
 	if tail:
-		var new_hex : SnakeHex = map.create_hex(map.mover_hex_scn, map.get_hex_coords(tail.last_position), color)
+		var new_hex : SnakeHex = map.create_hex(map.mover_hex_scn, tail.last_coords, color)
 		tail.next_segment = new_hex
 		new_hex.prev_segment = tail
 

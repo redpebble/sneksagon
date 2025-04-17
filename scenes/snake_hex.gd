@@ -12,7 +12,8 @@ func _draw() -> void:
 		draw_line(Vector2.ZERO, to_local(next_segment.global_position), modulate, 1)
 
 # overrides ObjectHex.move()
-func move(pos : Vector2, duration := 0.25) -> Tween:
+func move(to_coords : Vector2, duration := 0.25) -> Tween:
 	if next_segment:
-		next_segment.move(global_position, duration)
-	return super.move(pos, duration)
+		print(grid_coords)
+		next_segment.move(grid_coords, duration)
+	return super.move(to_coords, duration)
