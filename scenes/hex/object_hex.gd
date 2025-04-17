@@ -13,9 +13,6 @@ func _ready() -> void:
 	z_index = 10
 	scale *= 0.8
 
-func _process(_delta: float) -> void:
-	queue_redraw()
-
 func move(to_coords : Vector2, duration := 0.25) -> Tween:
 	if move_tween:
 		move_tween.kill()

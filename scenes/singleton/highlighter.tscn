@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://d1spljt7y25ox"]
 
-[ext_resource type="Script" uid="uid://81ul36lxrxec" path="res://scenes/Singletons/highlighter.gd" id="1_58kum"]
+[ext_resource type="Script" uid="uid://81ul36lxrxec" path="res://scenes/singleton/highlighter.gd" id="1_58kum"]
 [ext_resource type="Texture2D" uid="uid://cxm64qxmq8ckv" path="res://assets/hex.png" id="2_dspiy"]
 
 [node name="Highlighter" type="Node2D"]

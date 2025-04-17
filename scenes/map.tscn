@@ -1,16 +1,10 @@
-[gd_scene load_steps=5 format=3 uid="uid://diuykrg1nilh"]
+[gd_scene load_steps=3 format=3 uid="uid://diuykrg1nilh"]
 
 [ext_resource type="Script" uid="uid://6joi0b4nq07b" path="res://scenes/map.gd" id="1_4xfga"]
-[ext_resource type="PackedScene" uid="uid://ui01n6dvym8b" path="res://scenes/static_hex.tscn" id="2_paxxb"]
-[ext_resource type="PackedScene" uid="uid://ugiumccgqqsx" path="res://scenes/snake_hex.tscn" id="3_0cso3"]
 [ext_resource type="Script" uid="uid://dniflly1p6vxu" path="res://scenes/snake.gd" id="4_0cso3"]
 
 [node name="Map" type="Node2D"]
 script = ExtResource("1_4xfga")
-grid_contrast = 0.1
-grid_brightness = 0.5
-static_hex_scn = ExtResource("2_paxxb")
-mover_hex_scn = ExtResource("3_0cso3")
 
 [node name="Snake" type="Node2D" parent="."]
 script = ExtResource("4_0cso3")

@@ -1,0 +1,7 @@
+[gd_scene load_steps=3 format=3 uid="uid://c1uwc3r8l8fce"]
+
+[ext_resource type="PackedScene" uid="uid://cpjrl6jigt8x4" path="res://scenes/hex/object_hex.tscn" id="1_hqyrv"]
+[ext_resource type="Script" uid="uid://dha33ypyxlm5s" path="res://scenes/hex/snake_hex.gd" id="2_hqyrv"]
+
+[node name="SnakeHex" instance=ExtResource("1_hqyrv")]
+script = ExtResource("2_hqyrv")

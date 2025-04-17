@@ -18,8 +18,8 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-MapManager="*res://scenes/Singletons/map_manager.gd"
-Highlighter="*res://scenes/Singletons/highlighter.tscn"
+MapManager="*res://scenes/singleton/map_manager.gd"
+Highlighter="*res://scenes/singleton/highlighter.tscn"
 
 [display]
 

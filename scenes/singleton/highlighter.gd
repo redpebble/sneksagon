@@ -11,7 +11,7 @@ func _init() -> void:
 	z_index = 1
 
 func _ready() -> void:
-	scale_to_width(MapManager.hex_width)
+	scale_to_width(MapManager.HEX_WIDTH)
 
 func scale_to_width(hex_width : float) -> void:
 	var scale_amount = hex_width / sprite.texture.get_width()

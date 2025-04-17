@@ -6,6 +6,8 @@ extends ObjectHex
 var prev_segment : SnakeHex = null
 var next_segment : SnakeHex = null
 
+func _process(_delta: float) -> void:
+	queue_redraw() # required for the segment lines to render
 
 func _draw() -> void:
 	if next_segment:
@@ -14,6 +16,5 @@ func _draw() -> void:
 # overrides ObjectHex.move()
 func move(to_coords : Vector2, duration := 0.25) -> Tween:
 	if next_segment:
-		print(grid_coords)
 		next_segment.move(grid_coords, duration)
 	return super.move(to_coords, duration)
