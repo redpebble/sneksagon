@@ -23,11 +23,10 @@ func highlight_position(pos : Vector2, show_highlight : bool) -> void:
 func pulse():
 	reset_brightness()
 	if pulse_tween: pulse_tween.kill()
-	pulse_tween = create_tween()
-	pulse_tween.finished.connect(pulse)
-	pulse_tween.set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_SINE)
+	pulse_tween = create_tween().set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_SINE)
 	pulse_tween.tween_property(sprite, "modulate:a", min_brightness, pulse_interval * 0.5)
 	pulse_tween.tween_property(sprite, "modulate:a", 1, pulse_interval * 0.5)
+	pulse_tween.finished.connect(pulse)
 
 func reset_brightness():
 	sprite.modulate.a = 1.0

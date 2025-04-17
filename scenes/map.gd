@@ -8,7 +8,7 @@ extends Node2D
 
 @onready var hex_width = 2 * hex_scale
 
-var map : Dictionary[Vector2, Node2D] = {}
+var map : Dictionary[Vector2, Node2D] = {} # FIXME no need for node2Ds themselves to be stored
 var entities : Dictionary[Vector2, Array] = {}
 var map_origin := Vector2.ZERO
 
@@ -16,7 +16,8 @@ var map_origin := Vector2.ZERO
 func _ready() -> void:
 	Highlighter.scale_to_width(hex_width)
 	populate_grid()
-	create_hex(mover_hex_scn, Vector2(2, 4), Color.BLACK)
+	#create_hex(mover_hex_scn, Vector2(2, 4), Color.BLACK)
+	$Snake.make_head(Vector2(2, 2))
 
 # use hex coordinates to get position in world
 func get_hex_world_position(coords : Vector2, offset : Vector2 = map_origin) -> Vector2:

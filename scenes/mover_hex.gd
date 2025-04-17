@@ -16,7 +16,7 @@ var max_length := 5
 
 
 func _ready() -> void:
-	z_index = 10
+	z_index = 10 #place above highlight
 	if prev_segment == null:
 		head = self
 	scale *= 0.8
@@ -47,7 +47,7 @@ func update_highlight():
 
 func get_move_position() -> Vector2:
 	return map.get_move_position(self, round_hexagonal(get_input_vector()))
-func get_input_vector():
+func get_input_vector() -> Vector2:
 	var mouse_input_vector := global_position.direction_to(get_global_mouse_position())
 	return mouse_input_vector
 
