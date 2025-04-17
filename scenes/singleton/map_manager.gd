@@ -44,7 +44,7 @@ func create_hex(hex_node: Hex, coords : Vector2, color : Color = Color.BLACK) ->
 	hex_node.position = get_hex_world_position(coords)
 	hex_node.modulate = color
 
-	if hex_node is ObjectHex: # includes sub-classes, i.e. SnakeHex
+	if hex_node is ObjectHex: # includes sub-classes, i.e. SnakeHex, AppleHex
 		entities[coords] = [hex_node]
 		hex_node.moved.connect(_on_hex_moved)
 	else:

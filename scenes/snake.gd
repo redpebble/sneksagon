@@ -28,8 +28,13 @@ func update_highlight():
 	Highlighter.highlight_coords(to_coords, is_valid_move(to_coords))
 
 func get_input_vector() -> Vector2:
-	var mouse_input_vector := head.global_position.direction_to(get_global_mouse_position())
-	return mouse_input_vector
+	var head_pos = head.global_position
+	var mouse_pos = get_global_mouse_position()
+
+	if head_pos.distance_to(mouse_pos) < MapManager.HEX_WIDTH / 2.0:
+		return Vector2.ZERO
+	
+	return head_pos.direction_to(mouse_pos)
 
 func is_valid_move(to_coords: Vector2) -> bool:
 	if to_coords == head.grid_coords || !MapManager.valid_coords.has(to_coords):
@@ -76,7 +81,7 @@ func extend() -> void:
 		new_hex.prev_segment = tail
 
 func make_head(hex_coords : Vector2) -> void:
-	head = MapManager.create_hex(snake_hex_scene.instantiate(), hex_coords, color)
+	head = MapManager.create_hex(snake_hex_scene.instantiate(), hex_coords, color.lightened(0.15))
 
 func get_tail() -> SnakeHex:
 	var current_hex := head
