@@ -17,11 +17,12 @@ func scale_to_width(hex_width : float) -> void:
 	var scale_amount = hex_width / sprite.texture.get_width()
 	sprite.scale = Vector2.ONE * scale_amount
 
-func highlight_position(pos : Vector2, show_highlight : bool) -> void:
+func highlight_coords(coords : Vector2, show_highlight : bool) -> void:
 	visible = show_highlight
-	if sprite.global_position != pos:
+	var new_pos = MapManager.get_hex_world_position(coords)
+	if sprite.global_position != new_pos:
 		pulse()
-	sprite.global_position = pos
+	sprite.global_position = new_pos
 
 func pulse():
 	reset_brightness()

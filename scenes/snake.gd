@@ -25,16 +25,8 @@ func read_inputs():
 		move()
 
 func update_highlight():
-	var show_highlight : bool = (get_move_position() != head.global_position)
-	Highlighter.highlight_position(get_move_position(), show_highlight)
-
-func get_move_position() -> Vector2:
-	var head_pos := head.global_position
-	var move_pos := head_pos
-	var potential_pos = MapManager.get_move_position(head, round_hexagonal(get_input_vector()))
-	if potential_pos != head_pos:
-		move_pos = potential_pos
-	return move_pos
+	var to_coords = MapManager.get_adjacent_hex_coords(head.grid_coords, round_hexagonal(get_input_vector()))
+	Highlighter.highlight_coords(to_coords, is_valid_move(to_coords))
 
 func get_input_vector() -> Vector2:
 	var mouse_input_vector := head.global_position.direction_to(get_global_mouse_position())
@@ -50,14 +42,13 @@ func is_valid_move(to_coords: Vector2) -> bool:
 	
 	return true
 
-
 func move(duration := 0.25) -> void:
 	if head.move_tween:
 		head.move_tween.kill()
 	var to_coords = MapManager.get_adjacent_hex_coords(head.grid_coords, round_hexagonal(get_input_vector()))
 
 	if !is_valid_move(to_coords):
-		return # in OG snake, this would be game over
+		return
 
 	extend()
 	head.move(to_coords, duration)

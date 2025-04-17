@@ -52,15 +52,6 @@ func create_hex(hex_node: Hex, coords : Vector2, color : Color) -> Node2D:
 
 	return hex_node
 
-func get_move_position(mover : Node2D, direction : Vector2) -> Vector2: # TODO: get rid of this???
-	var move_position := mover.global_position
-	var from_coords = MapManager.get_hex_coords(mover.global_position)
-	var to_coords = MapManager.get_adjacent_hex_coords(from_coords, direction)
-	if valid_coords.get(to_coords) != null:
-		if not entities.get(to_coords):
-			move_position = MapManager.get_hex_world_position(to_coords)
-	return move_position
-
 # update entity data when moved
 func _on_hex_moved(hex : Hex, from_coords : Vector2, to_coords : Vector2):
 	if entities.get(from_coords):
