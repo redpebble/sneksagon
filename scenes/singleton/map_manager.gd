@@ -67,13 +67,26 @@ func get_random_cell() -> Vector2:
 	var coords_list = valid_coords.keys()
 	return coords_list[randi_range(0, coords_list.size() - 1)]
 
-func get_random_empty_cell() -> Vector2: # this is not very good lol
-	var coords = null
-	while coords == null:
-		var check_coords = get_random_cell()
-		if entities.get(check_coords) == null:
-			coords = check_coords
-	return coords
+func get_random_empty_cell():
+	var open_cells : Dictionary = valid_coords.duplicate()
+	for i in entities:
+		open_cells.erase(i)
+	if open_cells:
+		var rand_idx = randi() % open_cells.size()
+		var rand_coords = open_cells.keys()[rand_idx]
+		return rand_coords
+	else:
+		return null
 
 func spawn_apple() -> void:
-	create_hex(apple_scene.instantiate(), get_random_empty_cell())
+	var empty_cell = get_random_empty_cell()
+	if empty_cell:
+		create_hex(apple_scene.instantiate(), empty_cell)
+	else:
+		push_warning("No empty cells. Apple not spawned.")
+
+func scale_to_hex_width(node: Node2D, input_width : float):
+	if input_width == 0.0:
+		push_warning("Cannot calculate scale value from input of 0. Returning 1.0.")
+		return
+	node.scale = Vector2.ONE * HEX_WIDTH / input_width

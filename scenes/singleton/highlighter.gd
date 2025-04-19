@@ -11,11 +11,7 @@ func _init() -> void:
 	z_index = 1
 
 func _ready() -> void:
-	scale_to_width(MapManager.HEX_WIDTH)
-
-func scale_to_width(hex_width : float) -> void:
-	var scale_amount = hex_width / sprite.texture.get_width()
-	sprite.scale = Vector2.ONE * scale_amount
+	MapManager.scale_to_hex_width(sprite, sprite.texture.get_width())
 
 func highlight_coords(coords : Vector2, show_highlight : bool) -> void:
 	visible = show_highlight

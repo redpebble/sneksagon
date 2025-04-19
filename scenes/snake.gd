@@ -9,9 +9,6 @@ var snake_hex_scene = preload("res://scenes/hex/snake_hex.tscn")
 var head : SnakeHex = null
 
 
-#func _ready() -> void:
-	#z_index = 10 #place above highlight
-
 func _process(_delta: float) -> void:
 	read_inputs()
 	queue_redraw()
@@ -76,7 +73,7 @@ func round_hexagonal(base_vector) -> Vector2:
 func extend() -> void:
 	var tail := get_tail()
 	if tail:
-		var new_hex : SnakeHex = MapManager.create_hex(snake_hex_scene.instantiate(), tail.last_coords, color)
+		var new_hex : SnakeHex = MapManager.create_hex(snake_hex_scene.instantiate(), tail.grid_coords, color)
 		tail.next_segment = new_hex
 		new_hex.prev_segment = tail
 
