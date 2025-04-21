@@ -2,7 +2,7 @@ extends Node
 
 const HEX_COL_RATIO = 0.75
 const HEX_ROW_RATIO = 0.866
-const HEX_SCALE: int = 60
+const HEX_SCALE: int = 55
 const HEX_WIDTH = 2 * HEX_SCALE
 
 var map_node: Node2D = null

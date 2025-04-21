@@ -8,7 +8,7 @@ var hex_scene = preload("res://scenes/hex/hex.tscn")
 func _ready() -> void:
 	MapManager.map_node = self
 	populate_grid()
-	$Snake.make_head(Vector2(2, 2))
+	$Snake.make_head(Vector2.ZERO)
 	MapManager.spawn_apple()
 
 func populate_grid():
