@@ -27,8 +27,9 @@ func update_highlight():
 func get_input_vector() -> Vector2:
 	var head_pos = head.global_position
 	var mouse_pos = get_global_mouse_position()
+	var min_dist = MapManager.HEX_WIDTH / 2.0
 
-	if head_pos.distance_to(mouse_pos) < MapManager.HEX_WIDTH / 2.0:
+	if head_pos.distance_to(mouse_pos) < min_dist:
 		return Vector2.ZERO
 	
 	return head_pos.direction_to(mouse_pos)

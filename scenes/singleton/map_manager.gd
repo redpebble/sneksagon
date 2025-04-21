@@ -2,7 +2,7 @@ extends Node
 
 const HEX_COL_RATIO = 0.75
 const HEX_ROW_RATIO = 0.866
-const HEX_SCALE: int = 30
+const HEX_SCALE: int = 60
 const HEX_WIDTH = 2 * HEX_SCALE
 
 var map_node: Node2D = null
@@ -62,11 +62,6 @@ func _on_hex_moved(hex : Hex, from_coords : Vector2, to_coords : Vector2):
 			entities.erase(from_coords)
 	entities[to_coords] = [hex]
 
-
-func get_random_cell() -> Vector2:
-	var coords_list = valid_coords.keys()
-	return coords_list[randi_range(0, coords_list.size() - 1)]
-
 func get_random_empty_cell():
 	var open_cells : Dictionary = valid_coords.duplicate()
 	for i in entities:
@@ -80,7 +75,7 @@ func get_random_empty_cell():
 
 func spawn_apple() -> void:
 	var empty_cell = get_random_empty_cell()
-	if empty_cell:
+	if empty_cell != null:
 		create_hex(apple_scene.instantiate(), empty_cell)
 	else:
 		push_warning("No empty cells. Apple not spawned.")

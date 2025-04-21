@@ -12,7 +12,7 @@ func _ready() -> void:
 	MapManager.spawn_apple()
 
 func populate_grid():
-	var playfield : Vector2 = get_window().size * 0.75
+	var playfield : Vector2 = get_window().size * 0.6
 	var cols : int = floori(playfield.x / MapManager.HEX_WIDTH / MapManager.HEX_COL_RATIO)
 	var rows : int = floori(playfield.y / MapManager.HEX_WIDTH / MapManager.HEX_ROW_RATIO)
 	var window_center : Vector2 = get_window().size * 0.5
