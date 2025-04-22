@@ -3,6 +3,7 @@ extends Node2D
 @export_range(0.0, 1.0, 0.05) var min_brightness : float = 0.2
 @export_range(0.0, 2.0, 0.1) var pulse_interval : float = 1.0
 @onready var sprite := $Sprite2D
+@onready var highlight_sfx := $HighlightSFX
 
 var pulse_tween : Tween
 
@@ -17,6 +18,8 @@ func highlight_coords(coords : Vector2, show_highlight : bool) -> void:
 	visible = show_highlight
 	var new_pos = MapManager.get_hex_world_position(coords)
 	if sprite.global_position != new_pos:
+		if visible:
+			highlight_sfx.play(new_pos)
 		pulse()
 	sprite.global_position = new_pos
 

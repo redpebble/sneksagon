@@ -3,6 +3,7 @@ extends Node2D
 
 @export var color := Color.BLACK
 @onready var map = get_parent()
+@onready var move_sfx = $MoveSFX
 
 var snake_hex_scene = preload("res://scenes/hex/snake_hex.tscn")
 
@@ -18,7 +19,9 @@ func read_inputs():
 		return
 	update_highlight()
 	if Input.is_action_pressed("lmb"):
-		move()
+		if get_input_vector() != Vector2.ZERO:
+			move(0.3)
+			move_sfx.play_random()
 
 func update_highlight():
 	var to_coords = MapManager.get_adjacent_hex_coords(head.grid_coords, round_hexagonal(get_input_vector()))
@@ -57,7 +60,7 @@ func move(duration := 0.25) -> void:
 	var entities = MapManager.entities.get(to_coords)
 	if entities:
 		for e in entities:
-			if e is AppleHex:
+			if e is AppleHex and not e.collected:
 				extend()
 				e.eat()
 	
