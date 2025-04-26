@@ -1,0 +1,8 @@
+[gd_scene load_steps=3 format=3 uid="uid://besi7waq81vky"]
+
+[ext_resource type="Script" uid="uid://ni7kovrilv7a" path="res://scenes/singleton/game_manager.gd" id="1_0f6wv"]
+[ext_resource type="PackedScene" uid="uid://ddta8mux3pdy3" path="res://scenes/snake.tscn" id="2_r5aac"]
+
+[node name="GameManager" type="Node"]
+script = ExtResource("1_0f6wv")
+snake_scene = ExtResource("2_r5aac")

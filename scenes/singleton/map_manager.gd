@@ -45,8 +45,9 @@ func create_hex(hex_node: Hex, coords : Vector2, color : Color = Color.BLACK) ->
 	hex_node.modulate = color
 
 	if hex_node is ObjectHex: # includes sub-classes, i.e. SnakeHex, AppleHex
-		entities[coords] = [hex_node]
+		record_entity(hex_node, coords)
 		hex_node.moved.connect(_on_hex_moved)
+		hex_node.tree_exiting.connect(_on_hex_tree_exiting.bind(hex_node))
 	else:
 		valid_coords[coords] = true
 
@@ -54,13 +55,39 @@ func create_hex(hex_node: Hex, coords : Vector2, color : Color = Color.BLACK) ->
 
 	return hex_node
 
+func clear() -> void:
+	for entity_array in entities.values():
+		for i in entity_array:
+			#print(i, " deleted")
+			i.queue_free()
+	entities.clear()
+
 # update entity data when moved
 func _on_hex_moved(hex : Hex, from_coords : Vector2, to_coords : Vector2):
-	if entities.get(from_coords):
-		entities[from_coords].erase(hex)
-		if entities[from_coords].is_empty():
-			entities.erase(from_coords)
-	entities[to_coords] = [hex]
+	erase_entity(hex, from_coords)
+	record_entity(hex, to_coords)
+
+# update entity data when exiting tree
+func _on_hex_tree_exiting(hex : Hex):
+	erase_entity(hex)
+
+# remove entity at specified coordinates
+# defaults to using the hex's current coords
+func erase_entity(hex : Hex, coords : Vector2 = hex.grid_coords) -> void:
+	if entities.get(coords):
+		if entities[coords].has(hex):
+			entities[coords].erase(hex)
+		else:
+			push_warning(str(hex) + " not found at coords " + str(coords))
+		if entities[coords].is_empty():
+			entities.erase(coords)
+
+# record entity at specified coordinates
+func record_entity(hex : Hex, coords : Vector2):
+	if entities.get(coords):
+		entities[coords].append(hex)
+	else:
+		entities[coords] = [hex]
 
 func get_random_empty_cell():
 	var open_cells : Dictionary = valid_coords.duplicate()

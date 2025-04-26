@@ -20,6 +20,7 @@ config/icon="res://icon.svg"
 
 MapManager="*res://scenes/singleton/map_manager.gd"
 Highlighter="*res://scenes/singleton/highlighter.tscn"
+GameManager="*res://scenes/singleton/game_manager.tscn"
 
 [display]
 
