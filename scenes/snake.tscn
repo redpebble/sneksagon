@@ -5,9 +5,12 @@
 
 [node name="Snake" type="Node2D"]
 script = ExtResource("1_a5f6l")
+automatic_movement = true
 
 [node name="MoveSFX" type="AudioStreamPlayer2D" parent="."]
 volume_db = -4.0
 bus = &"SFX"
 script = ExtResource("2_yc36x")
 pitch_variance = 0.03
+
+[node name="MoveTimer" type="Timer" parent="."]
