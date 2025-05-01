@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3 uid="uid://dbk3p3q8hhi52"]
+
+[ext_resource type="Script" uid="uid://cva77hado20o5" path="res://scenes/camera/camera.gd" id="1_6m2n3"]
+[ext_resource type="Script" uid="uid://dt4eo03m8bats" path="res://scenes/camera/screen_shake.gd" id="2_0jiuk"]
+
+[node name="Camera2D" type="Camera2D"]
+script = ExtResource("1_6m2n3")
+
+[node name="ScreenShake" type="Node" parent="."]
+script = ExtResource("2_0jiuk")
+
+[node name="FrequencyTimer" type="Timer" parent="ScreenShake"]
+
+[node name="DurationTimer" type="Timer" parent="ScreenShake"]
