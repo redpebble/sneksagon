@@ -4,8 +4,10 @@ extends Node2D
 signal died
 
 @export var color := Color.BLACK
-@export var base_move_interval : float = 0.4 # seconds
+@export var base_move_interval : float = 0.2 # seconds
 @export var automatic_movement := false
+@export var input_type := 0 # 0 - mouse, 1 - keyboard, 2 - controller
+
 @onready var map = get_parent()
 @onready var move_sfx = $MoveSFX
 @onready var move_timer = $MoveTimer
@@ -35,10 +37,41 @@ func read_inputs():
 			move(to_coords, move_interval)
 
 func _input(event: InputEvent) -> void:
-	if InputEventMouseMotion:
-		var potential_coords = MapManager.get_adjacent_hex_coords(head.grid_coords, get_input_vector())
-		if is_valid_coords(potential_coords):
-			move_vector = get_input_vector()
+	var v = Vector2.ZERO
+
+	match input_type:
+		0: # mouse
+			if InputEventMouseMotion:
+				v = get_input_vector()
+		
+		1: # keyboard
+			match get_event_action(event):
+				"up-left":    v = Vector2.UP + Vector2.LEFT
+				"up":         v = Vector2.UP
+				"up-right":   v = Vector2.UP + Vector2.RIGHT
+				"down-left":  v = Vector2.DOWN + Vector2.LEFT
+				"down":       v = Vector2.DOWN
+				"down-right": v = Vector2.DOWN + Vector2.RIGHT
+
+		2: # controller
+			var x = Input.get_axis("joystick-left", "joystick-right")
+			var y = Input.get_axis("joystick-up", "joystick-down")
+			v = Vector2(x, y)
+			if v.length() < 0.5:
+				return
+			v = round_hexagonal(v)
+		
+	var potential_coords = MapManager.get_adjacent_hex_coords(head.grid_coords, v)
+	if is_valid_coords(potential_coords):
+		move_vector = v
+
+# https://forum.godotengine.org/t/how-to-get-action-name-from-event/44909/2
+func get_event_action(event: InputEvent):
+	var x: Array[StringName] = InputMap.get_actions()
+	for a in x:
+		if event.is_action(a):
+			return a
+	return null
 
 func _on_move_timer_timeout():
 	if not automatic_movement:
@@ -155,11 +188,3 @@ func get_length() -> int:
 		length += 1
 		current_hex = current_hex.next_segment
 	return length
-
-func bump_segments() -> Array:
-	var segments := []
-	var current_hex := head
-	while current_hex != null:
-		segments.append(current_hex)
-		current_hex = current_hex.next_segment
-	return segments
