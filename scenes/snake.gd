@@ -1,6 +1,7 @@
 class_name Snake
 extends Node2D
 
+signal collided
 signal died
 
 @export var color := Color.BLACK
@@ -8,20 +9,19 @@ signal died
 @export var automatic_movement := false
 @export var input_type := 0 # 0 - mouse, 1 - keyboard, 2 - controller
 
+@onready var move_interval := base_move_interval
 @onready var map = get_parent()
 @onready var move_sfx = $MoveSFX
 @onready var move_timer = $MoveTimer
 
 var snake_hex_scene = preload("res://scenes/hex/snake_hex.tscn")
 var head : SnakeHex = null
-var move_interval := base_move_interval
 var move_vector := Vector2.ZERO
 
 func _ready() -> void:
 	move_timer.wait_time = move_interval
 	move_timer.one_shot = true
 	move_timer.timeout.connect(_on_move_timer_timeout)
-	
 
 func _process(_delta: float) -> void:
 	if not is_moving():
@@ -37,33 +37,48 @@ func read_inputs():
 			move(to_coords, move_interval)
 
 func _input(event: InputEvent) -> void:
-	var v = Vector2.ZERO
-
+	var input_vector = Vector2.ZERO
 	match input_type:
 		0: # mouse
 			if InputEventMouseMotion:
-				v = get_input_vector()
-		
+				input_vector = get_mouse_input_vector()
 		1: # keyboard
-			match get_event_action(event):
-				"up-left":    v = Vector2.UP + Vector2.LEFT
-				"up":         v = Vector2.UP
-				"up-right":   v = Vector2.UP + Vector2.RIGHT
-				"down-left":  v = Vector2.DOWN + Vector2.LEFT
-				"down":       v = Vector2.DOWN
-				"down-right": v = Vector2.DOWN + Vector2.RIGHT
-
+			input_vector = get_keyboard_input_vector(event)
 		2: # controller
-			var x = Input.get_axis("joystick-left", "joystick-right")
-			var y = Input.get_axis("joystick-up", "joystick-down")
-			v = Vector2(x, y)
-			if v.length() < 0.5:
-				return
-			v = round_hexagonal(v)
-		
-	var potential_coords = MapManager.get_adjacent_hex_coords(head.grid_coords, v)
+			input_vector = get_joystick_input_vector()
+	
+	var potential_coords = MapManager.get_adjacent_hex_coords(head.grid_coords, input_vector)
 	if is_valid_coords(potential_coords):
-		move_vector = v
+		move_vector = input_vector
+
+func get_mouse_input_vector() -> Vector2:
+	var v = Vector2.ZERO
+	if head:
+		var head_pos = MapManager.get_hex_world_position(head.grid_coords)
+		var mouse_pos = get_global_mouse_position()
+		var min_dist = MapManager.HEX_WIDTH * 0.2
+		if head_pos.distance_to(mouse_pos) > min_dist:
+			v = head_pos.direction_to(mouse_pos)
+	return round_hexagonal(v)
+
+func get_joystick_input_vector():
+	var v = Vector2.ZERO
+	var x = Input.get_axis("joystick-left", "joystick-right")
+	var y = Input.get_axis("joystick-up", "joystick-down")
+	if v.length() > 0.5:
+		v = Vector2(x, y)
+	return round_hexagonal(v)
+
+func get_keyboard_input_vector(event : InputEvent):
+	var v = Vector2.ZERO
+	match get_event_action(event):
+		"up-left":    v = Vector2.UP + Vector2.LEFT
+		"up":         v = Vector2.UP
+		"up-right":   v = Vector2.UP + Vector2.RIGHT
+		"down-left":  v = Vector2.DOWN + Vector2.LEFT
+		"down":       v = Vector2.DOWN
+		"down-right": v = Vector2.DOWN + Vector2.RIGHT
+	return v
 
 # https://forum.godotengine.org/t/how-to-get-action-name-from-event/44909/2
 func get_event_action(event: InputEvent):
@@ -76,7 +91,6 @@ func get_event_action(event: InputEvent):
 func _on_move_timer_timeout():
 	if not automatic_movement:
 		return
-	
 	var to_coords = MapManager.get_adjacent_hex_coords(head.grid_coords, move_vector)
 	move(to_coords, move_interval)
 
@@ -87,20 +101,6 @@ func update_highlight():
 		to_coords = MapManager.get_adjacent_hex_coords(head.grid_coords, move_vector)
 		show_highlight = is_valid_coords(to_coords)
 	Highlighter.highlight_coords(to_coords, show_highlight)
-
-func get_input_vector() -> Vector2:
-	if not head:
-		return Vector2.ZERO
-	
-	var head_pos = MapManager.get_hex_world_position(head.grid_coords)
-	#var head_pos = head.global_position
-	var mouse_pos = get_global_mouse_position()
-	var min_dist = MapManager.HEX_WIDTH / 2.0
-	
-	if head_pos.distance_to(mouse_pos) < min_dist:
-		return Vector2.ZERO
-	
-	return round_hexagonal(head_pos.direction_to(mouse_pos))
 
 func round_hexagonal(base_vector) -> Vector2:
 	var hex_direction : Vector2
@@ -122,12 +122,7 @@ func move(to_coords : Vector2, duration := 0.3) -> void:
 		if automatic_movement:
 			move_timer.start(duration)
 	else:
-		head.bump(to_coords, 50, duration)
-		get_tail().bump_finished.connect(_on_tail_bump_finished)
-
-func _on_tail_bump_finished():
-	get_tail().bump_finished.disconnect(_on_tail_bump_finished)
-	die()
+		collide(to_coords, duration)
 
 func is_valid_coords(to_coords: Vector2) -> bool:
 	var invalid_coords = [head.grid_coords]
@@ -156,7 +151,13 @@ func handle_collisions(to_coords : Vector2) -> bool:
 				e.eat()
 	return alive
 
+func collide(collision_coords : Vector2, duration : float):
+	get_tail().bump_finished.connect(die)
+	head.bump(collision_coords, 50, duration)
+	collided.emit()
+
 func die():
+	get_tail().bump_finished.disconnect(die)
 	move_timer.stop()
 	move_vector = Vector2.ZERO
 	died.emit()
