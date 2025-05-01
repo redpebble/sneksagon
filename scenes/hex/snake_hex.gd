@@ -1,6 +1,8 @@
 class_name SnakeHex
 extends ObjectHex
 
+signal bump_finished
+
 @onready var map = get_parent()
 
 var prev_segment : SnakeHex = null
@@ -14,7 +16,25 @@ func _draw() -> void:
 		draw_line(Vector2.ZERO, to_local(next_segment.global_position), modulate, 1)
 
 # overrides ObjectHex.move()
-func move(to_coords : Vector2, duration := 0.25) -> Tween:
+func move(to_coords : Vector2, duration := 0.3) -> Tween:
 	if next_segment:
 		next_segment.move(grid_coords, duration)
 	return super.move(to_coords, duration)
+
+func bump(to_coords : Vector2, amount : float, duration : float):
+	var bump_tween = create_tween().set_ease(Tween.EASE_IN)
+	var initial_pos = MapManager.get_hex_world_position(grid_coords)
+	var bump_pos = MapManager.get_hex_world_position(to_coords)
+	var bump_vector = initial_pos.direction_to(bump_pos) * amount
+	bump_tween.tween_property(self, "global_position", initial_pos + bump_vector, duration * 0.5)
+	bump_tween.set_ease(Tween.EASE_OUT)
+	bump_tween.tween_property(self, "global_position", initial_pos, duration * 0.5)
+	bump_tween.finished.connect(_on_bump_tween_finished)
+	
+	var segment_interval := 0.05
+	await get_tree().create_timer(segment_interval).timeout
+	if next_segment:
+		next_segment.bump(grid_coords, amount, duration)
+
+func _on_bump_tween_finished():
+	bump_finished.emit()
