@@ -6,23 +6,21 @@ var snake : Snake = null
 var camera : ShakyCamera = null
 
 func _ready() -> void:
-	start_level()
-
-func start_level():
-	create_snake()
+	await get_tree().process_frame
+	reset_level()
 
 func reset_level():
 	MapManager.clear()
-	snake.make_head(Vector2(0, 0))
+	create_snake(Vector2.ZERO)
 	MapManager.spawn_apple()
 
-func create_snake():
-	snake = snake_scene.instantiate()
-	call_deferred("add_child", snake)
-	await get_tree().process_frame
-	snake.make_head(Vector2.ZERO)
-	snake.died.connect(_on_snake_died)
-	snake.collided.connect(_on_snake_collided)
+func create_snake(init_coords : Vector2):
+	if snake == null:
+		snake = snake_scene.instantiate()
+		call_deferred("add_child", snake)
+		snake.died.connect(_on_snake_died)
+		snake.collided.connect(_on_snake_collided)
+	snake.make_head(init_coords)
 
 func _on_snake_died():
 	reset_level()

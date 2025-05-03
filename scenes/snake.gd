@@ -39,6 +39,9 @@ func read_inputs():
 			move(to_coords, move_interval)
 
 func _input(event: InputEvent) -> void:
+	if head == null:
+		return
+	
 	var input_vector = Vector2.ZERO
 	match input_type:
 		0: # mouse

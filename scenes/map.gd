@@ -8,7 +8,6 @@ var hex_scene = preload("res://scenes/hex/hex.tscn")
 func _ready() -> void:
 	MapManager.map_node = self
 	populate_grid()
-	MapManager.spawn_apple()
 
 func populate_grid():
 	var playfield : Vector2 = get_window().size * 0.6
