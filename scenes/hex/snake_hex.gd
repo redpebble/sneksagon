@@ -1,7 +1,7 @@
 class_name SnakeHex
 extends ObjectHex
 
-signal bump_finished
+signal move_finished
 
 @onready var map = get_parent()
 
@@ -22,23 +22,30 @@ func move(to_coords : Vector2, duration := 0.3) -> Tween:
 	return super.move(to_coords, duration)
 
 func bump(to_coords : Vector2, amount : float, duration : float):
-	var bump_tween = create_tween().set_trans(Tween.TRANS_SINE)
 	var initial_pos = MapManager.get_hex_world_position(grid_coords)
 	var bump_pos = MapManager.get_hex_world_position(to_coords)
 	var bump_vector = initial_pos.direction_to(bump_pos) * amount
 	
-	bump_tween.set_ease(Tween.EASE_IN)
-	bump_tween.tween_property(self, "global_position", initial_pos + bump_vector, duration * 0.5)
-	bump_tween.set_trans(Tween.TRANS_LINEAR)
-	bump_tween.tween_property(self, "global_position", initial_pos - (bump_vector * 0.3), duration * 0.5)
-	bump_tween.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_SINE)
-	bump_tween.tween_property(self, "global_position", initial_pos, duration * 0.3)
-	bump_tween.finished.connect(_on_bump_tween_finished)
+	if move_tween:
+		move_tween.kill()
+	move_tween = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	move_tween.tween_property(self, "global_position", initial_pos + bump_vector, duration * 0.5)
+	move_tween.set_trans(Tween.TRANS_LINEAR)
+	move_tween.tween_property(self, "global_position", initial_pos - (bump_vector * 0.3), duration * 0.5)
+	move_tween.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	move_tween.tween_property(self, "global_position", initial_pos, duration * 0.4)
+	move_tween.finished.connect(_on_move_tween_finished)
 	
-	var segment_interval := 0.04
-	await get_tree().create_timer(segment_interval).timeout
+	var delay_inteval := 0.04
+	await get_tree().create_timer(delay_inteval).timeout
 	if next_segment:
 		next_segment.bump(grid_coords, amount, duration)
 
-func _on_bump_tween_finished():
-	bump_finished.emit()
+func _on_move_tween_finished():
+	move_finished.emit()
+
+func chain_is_moving() -> bool:
+	var tweening = move_tween and move_tween.is_running()
+	if not tweening and next_segment != null:
+		tweening = next_segment.chain_is_moving()
+	return tweening

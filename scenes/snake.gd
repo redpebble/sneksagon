@@ -31,6 +31,8 @@ func _process(_delta: float) -> void:
 	queue_redraw()
 
 func read_inputs():
+	if is_moving():
+		return
 	if Input.is_action_pressed("lmb"):
 		if move_vector != Vector2.ZERO:
 			var to_coords = MapManager.get_adjacent_hex_coords(head.grid_coords, move_vector)
@@ -88,12 +90,6 @@ func get_event_action(event: InputEvent):
 			return a
 	return null
 
-func _on_move_timer_timeout():
-	if not automatic_movement:
-		return
-	var to_coords = MapManager.get_adjacent_hex_coords(head.grid_coords, move_vector)
-	move(to_coords, move_interval)
-
 func update_highlight():
 	var show_highlight : = true
 	var to_coords := Vector2.ZERO
@@ -111,6 +107,12 @@ func round_hexagonal(base_vector) -> Vector2:
 
 
 ## TRAVERSAL ##
+func _on_move_timer_timeout():
+	if not automatic_movement:
+		return
+	var to_coords = MapManager.get_adjacent_hex_coords(head.grid_coords, move_vector)
+	move(to_coords, move_interval)
+
 func move(to_coords : Vector2, duration := 0.3) -> void:
 	var alive = handle_collisions(to_coords)
 	
@@ -132,8 +134,11 @@ func is_valid_coords(to_coords: Vector2) -> bool:
 	
 	return not invalid_coords.has(to_coords)
 
-func is_moving():
-	return head and head.move_tween and head.move_tween.is_running()
+func is_moving() -> bool:
+	if head:
+		return head.chain_is_moving()
+	else:
+		return false
 
 func handle_collisions(to_coords : Vector2) -> bool:
 	var alive := true
@@ -152,12 +157,12 @@ func handle_collisions(to_coords : Vector2) -> bool:
 	return alive
 
 func collide(collision_coords : Vector2, duration : float):
-	get_tail().bump_finished.connect(die)
-	head.bump(collision_coords, 50, duration)
+	get_tail().move_finished.connect(die)
+	head.bump(collision_coords, 40, duration * 0.9)
 	collided.emit()
 
 func die():
-	get_tail().bump_finished.disconnect(die)
+	get_tail().move_finished.disconnect(die)
 	move_timer.stop()
 	move_vector = Vector2.ZERO
 	died.emit()
