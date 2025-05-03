@@ -60,7 +60,7 @@ func clear() -> void:
 		for i in entity_array:
 			#print(i, " deleted")
 			i.queue_free()
-	entities.clear()
+	#entities.clear() #should not be necessary if entites is properly maintained
 
 # update entity data when moved
 func _on_hex_moved(hex : Hex, from_coords : Vector2, to_coords : Vector2):
@@ -74,13 +74,17 @@ func _on_hex_tree_exiting(hex : Hex):
 # remove entity at specified coordinates
 # defaults to using the hex's current coords
 func erase_entity(hex : Hex, coords : Vector2 = hex.grid_coords) -> void:
-	if entities.get(coords):
+	if entities.get(coords) != null:
+		#erase entity
 		if entities[coords].has(hex):
 			entities[coords].erase(hex)
 		else:
-			push_warning(str(hex) + " not found at coords " + str(coords))
+			push_warning(str(hex) + " entry not found at coords " + str(coords))
+		#clear dictionary entry entirely
 		if entities[coords].is_empty():
 			entities.erase(coords)
+	else:
+		push_warning("No record at coords " + str(coords) + ". During attempted deletion of " + str(hex))
 
 # record entity at specified coordinates
 func record_entity(hex : Hex, coords : Vector2):
