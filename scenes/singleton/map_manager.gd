@@ -58,9 +58,12 @@ func create_hex(hex_node: Hex, coords : Vector2, color : Color = Color.BLACK) ->
 func clear() -> void:
 	for entity_array in entities.values():
 		for i in entity_array:
-			#print(i, " deleted")
+			#do not wait for a signal to erase
+			i.tree_exiting.disconnect(_on_hex_tree_exiting)
+			#force instant erasure
+			erase_entity(i)
+			#delete the entity
 			i.queue_free()
-	#entities.clear() #should not be necessary if entites is properly maintained
 
 # update entity data when moved
 func _on_hex_moved(hex : Hex, from_coords : Vector2, to_coords : Vector2):
@@ -68,6 +71,7 @@ func _on_hex_moved(hex : Hex, from_coords : Vector2, to_coords : Vector2):
 	record_entity(hex, to_coords)
 
 # update entity data when exiting tree
+# bypassed during clear()
 func _on_hex_tree_exiting(hex : Hex):
 	erase_entity(hex)
 
