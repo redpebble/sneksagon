@@ -22,6 +22,7 @@ func _ready() -> void:
 	move_timer.wait_time = move_interval
 	move_timer.one_shot = true
 	move_timer.timeout.connect(_on_move_timer_timeout)
+	
 
 func _process(_delta: float) -> void:
 	if not is_moving():
@@ -33,7 +34,7 @@ func _process(_delta: float) -> void:
 func read_inputs():
 	if is_moving():
 		return
-	if Input.is_action_pressed("lmb"):
+	if Input.is_action_pressed("move"):
 		if move_vector != Vector2.ZERO:
 			var to_coords = MapManager.get_adjacent_hex_coords(head.grid_coords, move_vector)
 			move(to_coords, move_interval)
@@ -52,9 +53,9 @@ func _input(event: InputEvent) -> void:
 		2: # controller
 			input_vector = get_joystick_input_vector()
 	
-	var potential_coords = MapManager.get_adjacent_hex_coords(head.grid_coords, input_vector)
-	if is_valid_coords(potential_coords):
-		move_vector = input_vector
+	var potential_vector = get_closest_valid_vector(input_vector)
+	if potential_vector != Vector2.ZERO:
+		move_vector = potential_vector
 
 func get_mouse_input_vector() -> Vector2:
 	var v = Vector2.ZERO
@@ -64,25 +65,27 @@ func get_mouse_input_vector() -> Vector2:
 		var min_dist = MapManager.HEX_WIDTH * 0.2
 		if head_pos.distance_to(mouse_pos) > min_dist:
 			v = head_pos.direction_to(mouse_pos)
-	return round_hexagonal(v)
+	return v
 
 func get_joystick_input_vector():
-	var v = Vector2.ZERO
 	var x = Input.get_axis("joystick-left", "joystick-right")
 	var y = Input.get_axis("joystick-up", "joystick-down")
-	if v.length() > 0.5:
-		v = Vector2(x, y)
-	return round_hexagonal(v)
+	var v = Vector2(x, y)
+	# set input deadzone
+	if v.length() < 0.5:
+		v = Vector2.ZERO
+	return v
 
 func get_keyboard_input_vector(event : InputEvent):
 	var v = Vector2.ZERO
-	match get_event_action(event):
-		"up-left":    v = Vector2.UP + Vector2.LEFT
-		"up":         v = Vector2.UP
-		"up-right":   v = Vector2.UP + Vector2.RIGHT
-		"down-left":  v = Vector2.DOWN + Vector2.LEFT
-		"down":       v = Vector2.DOWN
-		"down-right": v = Vector2.DOWN + Vector2.RIGHT
+	if event.is_pressed():
+		match get_event_action(event):
+			"up-left":    v = Vector2.UP + Vector2.LEFT
+			"up":         v = Vector2.UP
+			"up-right":   v = Vector2.UP + Vector2.RIGHT
+			"down-left":  v = Vector2.DOWN + Vector2.LEFT
+			"down":       v = Vector2.DOWN
+			"down-right": v = Vector2.DOWN + Vector2.RIGHT
 	return v
 
 # https://forum.godotengine.org/t/how-to-get-action-name-from-event/44909/2
@@ -106,6 +109,9 @@ func round_hexagonal(base_vector) -> Vector2:
 	hex_direction.x = roundi(base_vector.x)
 	#max out vertical input to eliminate "sticky" horizontal movement
 	hex_direction.y = ceili(abs(base_vector.y)) * sign(base_vector.y)
+	# default to the last move vector if the base vector is perfectly left or right
+	if hex_direction == Vector2.LEFT or hex_direction == Vector2.RIGHT:
+		hex_direction = move_vector
 	return hex_direction
 
 
@@ -136,6 +142,30 @@ func is_valid_coords(to_coords: Vector2) -> bool:
 		invalid_coords.append(head.last_coords)
 	
 	return not invalid_coords.has(to_coords)
+
+# Checks for valid vectors, starting from the input vector, alternating sides for each check
+# Returns the closest vector which would move to a valid coordinate
+func get_closest_valid_vector(input_vector : Vector2):
+	var closest := Vector2.ZERO
+	var angle_interval = PI/3
+	var raw_input_angle = input_vector.angle()
+	var adjusted_input_angle = input_vector.rotated(angle_interval).angle()
+	# gets the distance from the nearest hexagonal move direction, offset to center the value at 0
+	var side_favor = abs(fmod(angle_difference(angle_interval, adjusted_input_angle), angle_interval)) - PI/6
+	var side_flip : int = 1 if side_favor < 0 else -1
+	# reverse flipping on negative input angles
+	if raw_input_angle < 0:
+		side_flip *= -1
+	
+	for i in 6: # check each direction
+		side_flip *= 1 if (i % 2) else -1 # alternate sides
+		var rotation_amount = i * angle_interval * side_flip
+		var potential_vector = round_hexagonal(input_vector.normalized().rotated(rotation_amount))
+		var potential_coords = MapManager.get_adjacent_hex_coords(head.grid_coords, potential_vector)
+		if is_valid_coords(potential_coords):
+			closest = potential_vector
+			break
+	return closest
 
 func is_moving() -> bool:
 	if head:
