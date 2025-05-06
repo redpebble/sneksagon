@@ -17,6 +17,7 @@ signal died
 var snake_hex_scene = preload("res://scenes/hex/snake_hex.tscn")
 var head : SnakeHex = null
 var move_vector := Vector2.ZERO
+var key_input_queue : Array[String] = []
 
 func _ready() -> void:
 	move_timer.wait_time = move_interval
@@ -32,14 +33,12 @@ func _process(_delta: float) -> void:
 	queue_redraw()
 
 func read_inputs():
-	if is_moving():
-		return
 	if Input.is_action_pressed("move"):
-		if move_vector != Vector2.ZERO:
-			var to_coords = MapManager.get_adjacent_hex_coords(head.grid_coords, move_vector)
-			move(to_coords, move_interval)
+		move(move_interval)
 
 func _input(event: InputEvent) -> void:
+	update_key_input_queue()
+	
 	if head == null:
 		return
 	
@@ -49,7 +48,7 @@ func _input(event: InputEvent) -> void:
 			if InputEventMouseMotion:
 				input_vector = get_mouse_input_vector()
 		1: # keyboard
-			input_vector = get_keyboard_input_vector(event)
+			input_vector = get_keyboard_input_vector()
 		2: # controller
 			input_vector = get_joystick_input_vector()
 	
@@ -68,33 +67,28 @@ func get_mouse_input_vector() -> Vector2:
 	return v
 
 func get_joystick_input_vector():
-	var x = Input.get_axis("joystick-left", "joystick-right")
-	var y = Input.get_axis("joystick-up", "joystick-down")
+	var x = Input.get_axis("joystick_left", "joystick_right")
+	var y = Input.get_axis("joystick_up", "joystick_down")
 	var v = Vector2(x, y)
 	# set input deadzone
 	if v.length() < 0.5:
 		v = Vector2.ZERO
 	return v
 
-func get_keyboard_input_vector(event : InputEvent):
+func get_keyboard_input_vector():
 	var v = Vector2.ZERO
-	if event.is_pressed():
-		match get_event_action(event):
-			"up-left":    v = Vector2.UP + Vector2.LEFT
-			"up":         v = Vector2.UP
-			"up-right":   v = Vector2.UP + Vector2.RIGHT
-			"down-left":  v = Vector2.DOWN + Vector2.LEFT
-			"down":       v = Vector2.DOWN
-			"down-right": v = Vector2.DOWN + Vector2.RIGHT
+	if key_input_queue.size() > 0:
+		# set the vector to the most recently queued direction
+		v = MapManager.directions.get(key_input_queue[-1])
 	return v
 
-# https://forum.godotengine.org/t/how-to-get-action-name-from-event/44909/2
-func get_event_action(event: InputEvent):
-	var x: Array[StringName] = InputMap.get_actions()
-	for a in x:
-		if event.is_action(a):
-			return a
-	return null
+func update_key_input_queue():
+	for i in MapManager.directions.keys():
+		if Input.is_action_just_pressed(i):
+			if !key_input_queue.has(i):
+				key_input_queue.append(i)
+		if Input.is_action_just_released(i):
+			key_input_queue.erase(i)
 
 func update_highlight():
 	var show_highlight : = true
@@ -119,12 +113,11 @@ func round_hexagonal(base_vector) -> Vector2:
 func _on_move_timer_timeout():
 	if not automatic_movement:
 		return
-	var to_coords = MapManager.get_adjacent_hex_coords(head.grid_coords, move_vector)
-	move(to_coords, move_interval)
+	move(move_interval)
 
-func move(to_coords : Vector2, duration := 0.3) -> void:
+func move(duration := 0.3) -> void:
+	var to_coords = MapManager.get_adjacent_hex_coords(head.grid_coords, move_vector)
 	var alive = handle_collisions(to_coords)
-	
 	if alive:
 		move_sfx.play_random()
 		var move_tween = head.move(to_coords, duration)

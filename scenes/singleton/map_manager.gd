@@ -15,6 +15,15 @@ var grid_map_origin := Vector2.ZERO
 
 var apple_scene = preload("res://scenes/hex/apple_hex.tscn")
 
+var directions := {
+	"up"         = Vector2.UP,
+	"up_left"    = Vector2.UP + Vector2.LEFT,
+	"up_right"   = Vector2.UP + Vector2.RIGHT,
+	"down"       = Vector2.DOWN,
+	"down_left"  = Vector2.DOWN + Vector2.LEFT,
+	"down_right" = Vector2.DOWN + Vector2.RIGHT
+}
+
 # use hex coordinates to get position in world
 func get_hex_world_position(coords : Vector2, offset : Vector2 = grid_map_origin) -> Vector2:
 	var x = 0.75 * HEX_WIDTH * coords.x
@@ -30,12 +39,12 @@ func get_hex_coords(world_position : Vector2) -> Vector2:
 
 func get_adjacent_hex_coords(coords : Vector2, direction : Vector2) -> Vector2:
 	match direction:
-		Vector2.UP:                   return coords + Vector2(0, -1)
-		Vector2.UP + Vector2.LEFT:    return coords + Vector2(-1, 0)
-		Vector2.UP + Vector2.RIGHT:   return coords + Vector2(1, -1)
-		Vector2.DOWN:                 return coords + Vector2(0, 1)
-		Vector2.DOWN + Vector2.LEFT:  return coords + Vector2(-1, 1)
-		Vector2.DOWN + Vector2.RIGHT: return coords + Vector2(1, 0)
+		directions.up:         return coords + Vector2(0, -1)
+		directions.up_left:    return coords + Vector2(-1, 0)
+		directions.up_right:   return coords + Vector2(1, -1)
+		directions.down:       return coords + Vector2(0, 1)
+		directions.down_left:  return coords + Vector2(-1, 1)
+		directions.down_right: return coords + Vector2(1, 0)
 		_: return coords
 
 func create_hex(hex_node: Hex, coords : Vector2, color : Color = Color.BLACK) -> Node2D:
