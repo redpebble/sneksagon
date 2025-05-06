@@ -191,7 +191,7 @@ func handle_collisions(to_coords : Vector2) -> bool:
 
 func collide(collision_coords : Vector2, duration : float):
 	get_tail().move_finished.connect(die)
-	head.bump(collision_coords, 40, duration * 0.9)
+	head.chain_bump(collision_coords, 30, duration * 0.8)
 	collided.emit()
 
 func die():
