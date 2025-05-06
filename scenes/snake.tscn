@@ -8,6 +8,10 @@
 script = ExtResource("1_a5f6l")
 base_move_interval = 0.35
 
+[node name="InputParser" type="Node2D" parent="."]
+script = ExtResource("3_auphx")
+input_type = 2
+
 [node name="MoveSFX" type="AudioStreamPlayer2D" parent="."]
 volume_db = -4.0
 bus = &"SFX"
@@ -15,6 +19,4 @@ script = ExtResource("2_yc36x")
 pitch_variance = 0.03
 
 [node name="MoveTimer" type="Timer" parent="."]
-
-[node name="InputParser" type="Node" parent="."]
-script = ExtResource("3_auphx")
+one_shot = true

@@ -7,88 +7,33 @@ signal died
 @export var color := Color.BLACK
 @export var base_move_interval : float = 0.2 # seconds
 @export var automatic_movement := false
-@export var input_type := 0 # 0 - mouse, 1 - keyboard, 2 - controller
 
 @onready var move_interval := base_move_interval
-@onready var map = get_parent()
+@onready var map = MapManager.map_node
 @onready var move_sfx = $MoveSFX
 @onready var move_timer = $MoveTimer
+@onready var input_parser = $InputParser
 
 var snake_hex_scene = preload("res://scenes/hex/snake_hex.tscn")
 var head : SnakeHex = null
 var move_vector := Vector2.ZERO
-var key_input_queue : Array[String] = []
 
 func _ready() -> void:
-	move_timer.wait_time = move_interval
-	move_timer.one_shot = true
+	input_parser.move_action_pressed.connect(_on_move_action_pressed)
 	move_timer.timeout.connect(_on_move_timer_timeout)
-	
 
 func _process(_delta: float) -> void:
+	if head:
+		global_position = head.global_position
 	if not is_moving():
+		update_move_vector()
 		update_highlight()
-		if not automatic_movement:
-			read_inputs()
 	queue_redraw()
 
-func read_inputs():
-	if Input.is_action_pressed("move"):
-		move(move_interval)
-
-func _input(event: InputEvent) -> void:
-	update_key_input_queue()
-	
-	if head == null:
-		return
-	
-	var input_vector = Vector2.ZERO
-	match input_type:
-		0: # mouse
-			if InputEventMouseMotion:
-				input_vector = get_mouse_input_vector()
-		1: # keyboard
-			input_vector = get_keyboard_input_vector()
-		2: # controller
-			input_vector = get_joystick_input_vector()
-	
-	var potential_vector = get_closest_valid_vector(input_vector)
+func update_move_vector():
+	var potential_vector = get_closest_valid_vector(input_parser.get_input_vector())
 	if potential_vector != Vector2.ZERO:
 		move_vector = potential_vector
-
-func get_mouse_input_vector() -> Vector2:
-	var v = Vector2.ZERO
-	if head:
-		var head_pos = MapManager.get_hex_world_position(head.grid_coords)
-		var mouse_pos = get_global_mouse_position()
-		var min_dist = MapManager.HEX_WIDTH * 0.2
-		if head_pos.distance_to(mouse_pos) > min_dist:
-			v = head_pos.direction_to(mouse_pos)
-	return v
-
-func get_joystick_input_vector():
-	var x = Input.get_axis("joystick_left", "joystick_right")
-	var y = Input.get_axis("joystick_up", "joystick_down")
-	var v = Vector2(x, y)
-	# set input deadzone
-	if v.length() < 0.5:
-		v = Vector2.ZERO
-	return v
-
-func get_keyboard_input_vector():
-	var v = Vector2.ZERO
-	if key_input_queue.size() > 0:
-		# set the vector to the most recently queued direction
-		v = MapManager.directions.get(key_input_queue[-1])
-	return v
-
-func update_key_input_queue():
-	for i in MapManager.directions.keys():
-		if Input.is_action_just_pressed(i):
-			if !key_input_queue.has(i):
-				key_input_queue.append(i)
-		if Input.is_action_just_released(i):
-			key_input_queue.erase(i)
 
 func update_highlight():
 	var show_highlight : = true
@@ -98,36 +43,33 @@ func update_highlight():
 		show_highlight = is_valid_coords(to_coords)
 	Highlighter.highlight_coords(to_coords, show_highlight)
 
-func round_hexagonal(base_vector) -> Vector2:
-	var hex_direction : Vector2
-	hex_direction.x = roundi(base_vector.x)
-	#max out vertical input to eliminate "sticky" horizontal movement
-	hex_direction.y = ceili(abs(base_vector.y)) * sign(base_vector.y)
-	# default to the last move vector if the base vector is perfectly left or right
-	if hex_direction == Vector2.LEFT or hex_direction == Vector2.RIGHT:
-		hex_direction = move_vector
-	return hex_direction
-
 
 ## TRAVERSAL ##
 func _on_move_timer_timeout():
 	if not automatic_movement:
 		return
-	move(move_interval)
+	move()
 
-func move(duration := 0.3) -> void:
+func _on_move_action_pressed():
+	if not automatic_movement:
+		move()
+
+func move() -> void:
+	if is_moving():
+		return
 	var to_coords = MapManager.get_adjacent_hex_coords(head.grid_coords, move_vector)
 	var alive = handle_collisions(to_coords)
 	if alive:
 		move_sfx.play_random()
-		var move_tween = head.move(to_coords, duration)
+		var move_tween = head.move(to_coords, move_interval)
 		if move_tween:
 			await move_tween.finished
 		if automatic_movement:
-			move_timer.start(duration)
+			move_timer.start(move_interval)
 	else:
-		collide(to_coords, duration)
+		collide(to_coords, move_interval)
 
+# Checks if the coordinates make sense to move to
 func is_valid_coords(to_coords: Vector2) -> bool:
 	var invalid_coords = [head.grid_coords]
 	# no backward movement if larger than one segment
@@ -146,7 +88,7 @@ func get_closest_valid_vector(input_vector : Vector2):
 	# gets the distance from the nearest hexagonal move direction, offset to center the value at 0
 	var side_favor = abs(fmod(angle_difference(angle_interval, adjusted_input_angle), angle_interval)) - PI/6
 	var side_flip : int = 1 if side_favor < 0 else -1
-	# reverse flipping on negative input angles
+	# left and right sides are inverted when the input is directed upward
 	if raw_input_angle < 0:
 		side_flip *= -1
 	
@@ -159,6 +101,16 @@ func get_closest_valid_vector(input_vector : Vector2):
 			closest = potential_vector
 			break
 	return closest
+	
+func round_hexagonal(base_vector) -> Vector2:
+	var hex_direction : Vector2
+	hex_direction.x = roundi(base_vector.x)
+	#max out vertical input to eliminate "sticky" horizontal movement
+	hex_direction.y = ceili(abs(base_vector.y)) * sign(base_vector.y)
+	# default to the last move vector if the base vector is perfectly left or right
+	if hex_direction == Vector2.LEFT or hex_direction == Vector2.RIGHT:
+		hex_direction = move_vector
+	return hex_direction
 
 func is_moving() -> bool:
 	if head:
