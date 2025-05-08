@@ -19,7 +19,8 @@ func highlight_coords(coords : Vector2, show_highlight : bool) -> void:
 	var new_pos = MapManager.get_hex_world_position(coords)
 	if sprite.global_position != new_pos:
 		if visible:
-			highlight_sfx.play(new_pos)
+			#highlight_sfx.play(new_pos)
+			pass
 		pulse()
 	sprite.global_position = new_pos
 

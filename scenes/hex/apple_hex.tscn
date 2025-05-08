@@ -3,7 +3,7 @@
 [ext_resource type="PackedScene" uid="uid://cpjrl6jigt8x4" path="res://scenes/hex/object_hex.tscn" id="1_2jo77"]
 [ext_resource type="Script" uid="uid://j1xyknyy4m2t" path="res://scenes/hex/apple_hex.gd" id="2_tyydu"]
 [ext_resource type="Script" uid="uid://yi24ab38vuqq" path="res://general/VariableStreamPlayer2D.gd" id="3_tt3sy"]
-[ext_resource type="AudioStream" uid="uid://crtulwa0kj1qo" path="res://assets/Audio/SFX/collect2.wav" id="3_wwd5y"]
+[ext_resource type="AudioStream" uid="uid://crtulwa0kj1qo" path="res://assets/Audio/SFX/collect_2.wav" id="3_wwd5y"]
 
 [node name="AppleHex" instance=ExtResource("1_2jo77")]
 script = ExtResource("2_tyydu")

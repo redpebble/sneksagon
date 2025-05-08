@@ -1,8 +1,10 @@
-[gd_scene load_steps=4 format=3 uid="uid://ddta8mux3pdy3"]
+[gd_scene load_steps=6 format=3 uid="uid://ddta8mux3pdy3"]
 
 [ext_resource type="Script" uid="uid://dniflly1p6vxu" path="res://scenes/snake.gd" id="1_a5f6l"]
 [ext_resource type="Script" uid="uid://yi24ab38vuqq" path="res://general/VariableStreamPlayer2D.gd" id="2_yc36x"]
 [ext_resource type="Script" uid="uid://562ot6hqud1j" path="res://scenes/hex/input_parser.gd" id="3_auphx"]
+[ext_resource type="AudioStream" uid="uid://dwgrjciogt6xm" path="res://assets/Audio/SFX/select_1.wav" id="3_l4b1q"]
+[ext_resource type="AudioStream" uid="uid://bdnxvfuec111i" path="res://assets/Audio/SFX/collide.wav" id="5_4j5f3"]
 
 [node name="Snake" type="Node2D"]
 script = ExtResource("1_a5f6l")
@@ -10,13 +12,20 @@ base_move_interval = 0.35
 
 [node name="InputParser" type="Node2D" parent="."]
 script = ExtResource("3_auphx")
-input_type = 2
 
 [node name="MoveSFX" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("3_l4b1q")
 volume_db = -4.0
 bus = &"SFX"
 script = ExtResource("2_yc36x")
 pitch_variance = 0.03
+
+[node name="CollideSFX" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("5_4j5f3")
+volume_db = -5.0
+bus = &"SFX"
+script = ExtResource("2_yc36x")
+pitch_variance = 0.02
 
 [node name="MoveTimer" type="Timer" parent="."]
 one_shot = true

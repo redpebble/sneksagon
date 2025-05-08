@@ -11,6 +11,7 @@ signal died
 @onready var move_interval := base_move_interval
 @onready var map = MapManager.map_node
 @onready var move_sfx = $MoveSFX
+@onready var collide_sfx = $CollideSFX
 @onready var move_timer = $MoveTimer
 @onready var input_parser = $InputParser
 
@@ -137,6 +138,7 @@ func handle_collisions(to_coords : Vector2) -> bool:
 func collide(collision_coords : Vector2, duration : float):
 	get_tail().move_finished.connect(die)
 	head.chain_bump(collision_coords, 30, duration * 0.8)
+	collide_sfx.play_random()
 	collided.emit()
 
 func die():

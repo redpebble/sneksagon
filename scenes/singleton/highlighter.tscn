@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://81ul36lxrxec" path="res://scenes/singleton/highlighter.gd" id="1_58kum"]
 [ext_resource type="Texture2D" uid="uid://cxm64qxmq8ckv" path="res://assets/Textures/hex.png" id="2_dspiy"]
 [ext_resource type="Script" uid="uid://b32fi0cam2k4w" path="res://general/AudioStreamPool.gd" id="3_hrmsi"]
-[ext_resource type="AudioStream" uid="uid://dwgrjciogt6xm" path="res://assets/Audio/SFX/select1.wav" id="4_ipmtw"]
+[ext_resource type="AudioStream" uid="uid://dwgrjciogt6xm" path="res://assets/Audio/SFX/select_1.wav" id="4_ipmtw"]
 
 [node name="Highlighter" type="Node2D"]
 z_index = 100
