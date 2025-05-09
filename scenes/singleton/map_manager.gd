@@ -1,9 +1,9 @@
 extends Node
 
+signal hex_scale_changed(scale)
+
 const HEX_COL_RATIO = 0.75
 const HEX_ROW_RATIO = 0.866
-const HEX_SCALE: int = 55
-const HEX_WIDTH = 2 * HEX_SCALE
 
 var map_node: Node2D = null
 
@@ -12,6 +12,7 @@ var entities : Dictionary[Vector2, Array] = {}
 
 var valid_coords : Dictionary[Vector2, bool] = {} # there is no Set structure in GDScript
 var grid_map_origin := Vector2.ZERO
+var hex_scale: int = 60 : set = set_hex_scale
 
 var apple_scene = preload("res://scenes/hex/apple_hex.tscn")
 
@@ -24,18 +25,25 @@ var directions := {
 	"down_right" = Vector2.DOWN + Vector2.RIGHT
 }
 
+func set_hex_scale(_hex_scale):
+	hex_scale = _hex_scale
+	hex_scale_changed.emit()
+
 # use hex coordinates to get position in world
 func get_hex_world_position(coords : Vector2, offset : Vector2 = grid_map_origin) -> Vector2:
-	var x = 0.75 * HEX_WIDTH * coords.x
-	var y = 0.866 * HEX_WIDTH * (coords.y + 0.5 * coords.x)
+	var x = 0.75 * get_hex_width() * coords.x
+	var y = 0.866 * get_hex_width() * (coords.y + 0.5 * coords.x)
 	return Vector2(x, y) + offset
 
 # use world position to derive hex coordinates
 func get_hex_coords(world_position : Vector2) -> Vector2:
 	world_position -= grid_map_origin
-	var i = roundi(world_position.x / (0.75 * HEX_WIDTH))
-	var j = roundi(world_position.y / (0.866 * HEX_WIDTH) - 0.5 * i)
+	var i = roundi(world_position.x / (0.75 * get_hex_width()))
+	var j = roundi(world_position.y / (0.866 * get_hex_width()) - 0.5 * i)
 	return Vector2i(i, j)
+
+func get_hex_width() -> float:
+	return 2 * hex_scale
 
 func get_adjacent_hex_coords(coords : Vector2, direction : Vector2) -> Vector2:
 	match direction:
@@ -49,7 +57,7 @@ func get_adjacent_hex_coords(coords : Vector2, direction : Vector2) -> Vector2:
 
 func create_hex(hex_node: Hex, coords : Vector2, color : Color = Color.BLACK) -> Node2D:
 	hex_node.grid_coords = coords
-	hex_node.scale *= HEX_SCALE
+	hex_node.scale *= hex_scale
 	hex_node.position = get_hex_world_position(coords)
 	hex_node.modulate = color
 
@@ -128,4 +136,5 @@ func scale_to_hex_width(node: Node2D, input_width : float):
 	if input_width == 0.0:
 		push_warning("Cannot calculate scale value from input of 0. Returning 1.0.")
 		return
-	node.scale = Vector2.ONE * HEX_WIDTH / input_width
+	print(get_hex_width())
+	node.scale = Vector2.ONE * get_hex_width() / input_width

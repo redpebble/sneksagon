@@ -3,20 +3,24 @@ extends Node2D
 @export_range(0.0, 0.5, 0.05) var grid_contrast : float = 0.15
 @export_range(0.0, 1.0, 0.05) var grid_opacity : float = 0.3
 
+@onready var camera = $Camera2D
+
 var hex_scene = preload("res://scenes/hex/hex.tscn")
 
 func _ready() -> void:
 	MapManager.map_node = self
-	populate_grid()
+	#populate_grid()
+	generate_grid(3)
 
 func populate_grid():
 	var playfield : Vector2 = get_window().size * 0.6
-	var cols : int = floori(playfield.x / MapManager.HEX_WIDTH / MapManager.HEX_COL_RATIO)
-	var rows : int = floori(playfield.y / MapManager.HEX_WIDTH / MapManager.HEX_ROW_RATIO)
+	var cols : int = floori(playfield.x / MapManager.get_hex_width() / MapManager.HEX_COL_RATIO)
+	var rows : int = floori(playfield.y / MapManager.get_hex_width() / MapManager.HEX_ROW_RATIO)
 	var window_center : Vector2 = get_window().size * 0.5
 	var map_dimensions := Vector2i(cols, rows)
-	var map_size = (Vector2(map_dimensions) - Vector2(1.0, 0.5)) * Vector2(0.75, 0.866) * MapManager.HEX_WIDTH
+	var map_size = (Vector2(map_dimensions) - Vector2(1.0, 0.5)) * Vector2(0.75, 0.866) * MapManager.get_hex_width()
 	MapManager.grid_map_origin = window_center - (map_size * 0.5)
+	MapManager.hex_scale = MapManager.hex_scale
 	
 	for i in map_dimensions.x:
 		for j in map_dimensions.y:
@@ -26,3 +30,26 @@ func populate_grid():
 			var color = Color.WHITE.darkened(d)
 			color.a = grid_opacity
 			MapManager.create_hex(hex_scene.instantiate(), Vector2(i, adjusted_j), color)
+
+
+func generate_grid(side_length : int):
+	var long_diagonal : int = (2 * side_length) - 1
+	var window_size : Vector2 = get_window().size
+	var playfield = window_size * 0.4
+	MapManager.grid_map_origin = window_size * 0.5
+	MapManager.hex_scale = playfield.x / long_diagonal
+	
+	var grid_center_offset = Vector2(-side_length + 1, side_length - 1)
+	
+	for j in long_diagonal:
+		var growth_amount = j
+		var i_shift = 0
+		
+		if j > floori(long_diagonal * 0.5): # past the midway point
+			growth_amount = long_diagonal - growth_amount - 1
+			i_shift = j - side_length + 1
+		
+		var line_length = side_length + growth_amount
+		for i in line_length:
+			var hex_coords = grid_center_offset + Vector2(i + i_shift, -j)
+			MapManager.create_hex(hex_scene.instantiate(), hex_coords, Color.DIM_GRAY)

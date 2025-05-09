@@ -12,6 +12,9 @@ func _init() -> void:
 	z_index = 1
 
 func _ready() -> void:
+	MapManager.hex_scale_changed.connect(_on_hex_scale_changed)
+
+func _on_hex_scale_changed():
 	MapManager.scale_to_hex_width(sprite, sprite.texture.get_width())
 
 func highlight_coords(coords : Vector2, show_highlight : bool) -> void:

@@ -38,7 +38,7 @@ func get_input_vector() -> Vector2:
 func get_mouse_input_vector(from_pos : Vector2) -> Vector2:
 	var v = Vector2.ZERO
 	var mouse_pos = get_global_mouse_position()
-	var min_dist = MapManager.HEX_WIDTH * 0.2
+	var min_dist = MapManager.get_hex_width() * 0.2
 	if from_pos.distance_to(mouse_pos) > min_dist:
 		v = from_pos.direction_to(mouse_pos)
 	return v

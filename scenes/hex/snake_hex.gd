@@ -36,8 +36,8 @@ func chain_bump(to_coords : Vector2, amount : float, duration : float):
 	move_tween.tween_property(self, "global_position", initial_pos, duration * 0.5)
 	move_tween.finished.connect(_on_move_tween_finished)
 	
-	var delay_inteval := 0.04
-	await get_tree().create_timer(delay_inteval).timeout
+	var delay_interval := 0.03
+	await get_tree().create_timer(delay_interval).timeout
 	if next_segment:
 		next_segment.chain_bump(grid_coords, amount, duration)
 
