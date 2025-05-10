@@ -1,7 +1,7 @@
 extends Node2D
 
+@export var hex_color : Color = Color.WHITE
 @export_range(0.0, 0.5, 0.05) var grid_contrast : float = 0.15
-@export_range(0.0, 1.0, 0.05) var grid_opacity : float = 0.3
 
 @onready var camera = $Camera2D
 
@@ -27,17 +27,15 @@ func populate_grid():
 			var shift_amount : int = floori(0.5 * i) * -1
 			var adjusted_j   : int = j + shift_amount
 			var d = wrapi(adjusted_j - wrapi(i, 0, 3), 0, 3) * grid_contrast
-			var color = Color.WHITE.darkened(d)
-			color.a = grid_opacity
-			MapManager.create_hex(hex_scene.instantiate(), Vector2(i, adjusted_j), color)
+			MapManager.create_hex(hex_scene.instantiate(), Vector2(i, adjusted_j), hex_color.darkened(d))
 
 
 func generate_grid(side_length : int):
 	var long_diagonal : int = (2 * side_length) - 1
 	var window_size : Vector2 = get_window().size
-	var playfield = window_size * 0.4
+	var playfield = window_size * 0.6
 	MapManager.grid_map_origin = window_size * 0.5
-	MapManager.hex_scale = playfield.x / long_diagonal
+	MapManager.hex_scale = playfield.x / long_diagonal * 0.59 # magic number to fix scale
 	
 	var grid_center_offset = Vector2(-side_length + 1, side_length - 1)
 	
@@ -51,5 +49,8 @@ func generate_grid(side_length : int):
 		
 		var line_length = side_length + growth_amount
 		for i in line_length:
+			# brightness patterning
+			var d = wrapi(j + 1 + wrapi(i + i_shift , 0, 3), 0, 3) * grid_contrast
+			# create hex with respect the grid's center
 			var hex_coords = grid_center_offset + Vector2(i + i_shift, -j)
-			MapManager.create_hex(hex_scene.instantiate(), hex_coords, Color.DIM_GRAY)
+			MapManager.create_hex(hex_scene.instantiate(), hex_coords, hex_color.darkened(d))

@@ -26,6 +26,7 @@ GameManager="*res://scenes/singleton/game_manager.tscn"
 
 window/size/viewport_width=600
 window/size/viewport_height=600
+window/stretch/mode="canvas_items"
 
 [input]
 

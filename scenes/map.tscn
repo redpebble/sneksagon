@@ -1,10 +1,32 @@
-[gd_scene load_steps=3 format=3 uid="uid://diuykrg1nilh"]
+[gd_scene load_steps=5 format=3 uid="uid://diuykrg1nilh"]
 
 [ext_resource type="Script" uid="uid://6joi0b4nq07b" path="res://scenes/map.gd" id="1_4xfga"]
+[ext_resource type="Shader" uid="uid://3580qhc8ixlk" path="res://scenes/shaders/plasma_wave.gdshader" id="2_gldc4"]
 [ext_resource type="PackedScene" uid="uid://dbk3p3q8hhi52" path="res://scenes/camera/camera.tscn" id="2_paxxb"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_0cso3"]
+shader = ExtResource("2_gldc4")
+shader_parameter/gridSmoothWidth = 2.0
+shader_parameter/scale = 5.0
+shader_parameter/minOffsetSpread = 11.0
+shader_parameter/maxOffsetSpread = 5.5
+shader_parameter/lineColor = Color(0.0430388, 0.0430393, 0.0430388, 1)
+shader_parameter/bkgColor = Color(0, 0, 0, 1)
+shader_parameter/linesPerGroup = 12
+shader_parameter/circleOpacity = 0.3
+shader_parameter/hBorder = 2.0
 
 [node name="Map" type="Node2D"]
 script = ExtResource("1_4xfga")
+hex_color = Color(0.941176, 0.941176, 0.941176, 0.305882)
+
+[node name="ColorRect" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_0cso3")
+offset_left = -168.0
+offset_top = -168.0
+offset_right = 768.0
+offset_bottom = 768.0
+size_flags_horizontal = 3
 
 [node name="Camera2D" parent="." instance=ExtResource("2_paxxb")]
 position = Vector2(300, 300)

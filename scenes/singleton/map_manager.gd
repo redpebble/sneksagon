@@ -136,5 +136,4 @@ func scale_to_hex_width(node: Node2D, input_width : float):
 	if input_width == 0.0:
 		push_warning("Cannot calculate scale value from input of 0. Returning 1.0.")
 		return
-	print(get_hex_width())
 	node.scale = Vector2.ONE * get_hex_width() / input_width
