@@ -15,6 +15,7 @@ var grid_map_origin := Vector2.ZERO
 var hex_scale: int = 60 : set = set_hex_scale
 
 var apple_scene = preload("res://scenes/hex/apple_hex.tscn")
+var block_scene = preload("res://scenes/hex/block_hex.tscn")
 
 var directions := {
 	"up"         = Vector2.UP,
@@ -125,6 +126,9 @@ func get_random_empty_cell():
 	else:
 		return null
 
+func is_empty_cell(coords : Vector2) -> bool:
+	return entities.get(coords) == null
+
 func spawn_apple() -> void:
 	var empty_cell = get_random_empty_cell()
 	if empty_cell != null:
@@ -133,6 +137,11 @@ func spawn_apple() -> void:
 		create_hex(apple_inst, empty_cell, Color.RED)
 	else:
 		push_warning("No empty cells. Apple not spawned.")
+
+func spawn_block(at_coords : Vector2) -> void:
+	if not is_empty_cell(at_coords):
+		return
+	create_hex(block_scene.instantiate(), at_coords, Color.BLUE)
 
 func _on_apple_just_collected() -> void:
 	spawn_apple()

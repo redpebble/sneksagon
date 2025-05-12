@@ -58,17 +58,21 @@ func _on_move_action_pressed():
 func move() -> void:
 	if is_moving():
 		return
+	
 	var to_coords = MapManager.get_adjacent_hex_coords(head.grid_coords, move_vector)
-	var alive = handle_collisions(to_coords)
-	if alive:
+	var collision_flags = handle_collisions(to_coords)
+	
+	# BUMP
+	if collision_flags[1] == true:
+		collide(to_coords, move_interval, collision_flags[0])
+	# NORMAL MOVEMENT
+	else:
 		move_sfx.play_random()
 		var move_tween = head.move(to_coords, move_interval)
 		if move_tween:
 			await move_tween.finished
 		if automatic_movement:
 			move_timer.start(move_interval)
-	else:
-		collide(to_coords, move_interval)
 
 # Checks if the coordinates make sense to move to
 func is_valid_coords(to_coords: Vector2) -> bool:
@@ -119,25 +123,37 @@ func is_moving() -> bool:
 	else:
 		return false
 
-func handle_collisions(to_coords : Vector2) -> bool:
-	var alive := true
+## Returns and array of flags for the collision:
+## [dead, bump]
+func handle_collisions(to_coords : Vector2) -> Array:
+	var dead := false
+	var bump := false
 	var entities_at_coords = MapManager.entities.get(to_coords)
 	var map_has_coords = MapManager.valid_coords.has(to_coords)
 	
 	if not map_has_coords:
-		alive = false
+		dead = true
+		bump = true
 	elif entities_at_coords:
 		for e in entities_at_coords:
-			if e is SnakeHex && e != get_tail() and get_length() > 2:
-				alive = false
-			if e is AppleHex and not e.collected:
+			var is_body_part = e is SnakeHex && e != get_tail() and get_length() > 2
+			var is_collectable = e is AppleHex and not e.collected
+			
+			if is_body_part:
+				dead = true
+			
+			if is_collectable:
 				extend()
 				e.eat()
-	return alive
+			else:
+				bump = true
+	
+	return [dead, bump]
 
-func collide(collision_coords : Vector2, duration : float):
+func collide(collision_coords : Vector2, duration : float, dead : bool):
+	if dead:
+		get_tail().move_finished.connect(die)
 	var bump_distance = MapManager.get_hex_width() * 0.3
-	get_tail().move_finished.connect(die)
 	head.chain_bump(collision_coords, bump_distance, duration * 0.8)
 	collide_sfx.play_random()
 	collided.emit()
