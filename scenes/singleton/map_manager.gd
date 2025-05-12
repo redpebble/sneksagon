@@ -128,9 +128,14 @@ func get_random_empty_cell():
 func spawn_apple() -> void:
 	var empty_cell = get_random_empty_cell()
 	if empty_cell != null:
-		create_hex(apple_scene.instantiate(), empty_cell)
+		var apple_inst : AppleHex = apple_scene.instantiate()
+		apple_inst.just_collected.connect(_on_apple_just_collected)
+		create_hex(apple_inst, empty_cell, Color.RED)
 	else:
 		push_warning("No empty cells. Apple not spawned.")
+
+func _on_apple_just_collected() -> void:
+	spawn_apple()
 
 func scale_to_hex_width(node: Node2D, input_width : float):
 	if input_width == 0.0:

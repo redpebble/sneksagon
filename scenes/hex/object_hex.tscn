@@ -5,4 +5,3 @@
 
 [node name="ObjectHex" instance=ExtResource("1_42sxs")]
 script = ExtResource("2_jen7i")
-connect_segments = true

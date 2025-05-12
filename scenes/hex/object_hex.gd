@@ -3,11 +3,9 @@ extends Hex
 
 signal moved(hex_node, from_pos, to_pos)
 
-@export var connect_segments := true
 @onready var last_coords := grid_coords
 
 var move_tween : Tween = null
-
 
 func _ready() -> void:
 	z_index = 10

@@ -3,8 +3,6 @@ extends ObjectHex
 
 signal move_finished
 
-@onready var map = get_parent()
-
 var prev_segment : SnakeHex = null
 var next_segment : SnakeHex = null
 
@@ -31,13 +29,14 @@ func chain_bump(to_coords : Vector2, amount : float, duration : float):
 	move_tween = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	move_tween.tween_property(self, "global_position", initial_pos + bump_vector, duration * 0.4)
 	move_tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	move_tween.tween_property(self, "global_position", initial_pos - (bump_vector * 0.3), duration * 0.4)
+	move_tween.tween_property(self, "global_position", initial_pos - (bump_vector * 0.3), duration * 0.5)
 	move_tween.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
 	move_tween.tween_property(self, "global_position", initial_pos, duration * 0.5)
 	move_tween.finished.connect(_on_move_tween_finished)
 	
 	var delay_interval := 0.03
 	await get_tree().create_timer(delay_interval).timeout
+	
 	if next_segment:
 		next_segment.chain_bump(grid_coords, amount, duration)
 
