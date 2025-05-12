@@ -13,7 +13,7 @@ func _ready() -> void:
 func small_shake() -> void:
 	screen_shake.start(0.25, 30, 8.5, 0)
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	var target_pos = initial_position
 	if can_pivot:
 		target_pos = GameManager.snake.head.global_position

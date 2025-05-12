@@ -29,7 +29,7 @@ func chain_bump(to_coords : Vector2, amount : float, duration : float):
 	if move_tween:
 		move_tween.kill()
 	move_tween = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-	move_tween.tween_property(self, "global_position", initial_pos + bump_vector, duration * 0.5)
+	move_tween.tween_property(self, "global_position", initial_pos + bump_vector, duration * 0.4)
 	move_tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	move_tween.tween_property(self, "global_position", initial_pos - (bump_vector * 0.3), duration * 0.4)
 	move_tween.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)

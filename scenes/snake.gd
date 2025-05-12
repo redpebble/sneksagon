@@ -136,8 +136,9 @@ func handle_collisions(to_coords : Vector2) -> bool:
 	return alive
 
 func collide(collision_coords : Vector2, duration : float):
+	var bump_distance = MapManager.get_hex_width() * 0.3
 	get_tail().move_finished.connect(die)
-	head.chain_bump(collision_coords, 30, duration * 0.8)
+	head.chain_bump(collision_coords, bump_distance, duration * 0.8)
 	collide_sfx.play_random()
 	collided.emit()
 

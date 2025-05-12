@@ -2,6 +2,8 @@ extends Node2D
 
 @export_range(0.0, 1.0, 0.05) var min_brightness : float = 0.2
 @export_range(0.0, 2.0, 0.1) var pulse_interval : float = 1.0
+@export var color : Color = Color.WHITE
+
 @onready var sprite := $Sprite2D
 @onready var highlight_sfx := $HighlightSFX
 
@@ -13,6 +15,7 @@ func _init() -> void:
 
 func _ready() -> void:
 	MapManager.hex_scale_changed.connect(_on_hex_scale_changed)
+	modulate = color
 
 func _on_hex_scale_changed():
 	MapManager.scale_to_hex_width(sprite, sprite.texture.get_width())
