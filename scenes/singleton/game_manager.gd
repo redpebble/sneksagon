@@ -11,7 +11,7 @@ func _ready() -> void:
 func reset_level():
 	MapManager.clear()
 	await create_snake(Vector2.ZERO)
-	MapManager.spawn_block(Vector2(1,1))
+	MapManager.spawn_block(Vector2(1,0))
 	MapManager.spawn_apple()
 
 func create_snake(init_coords : Vector2):

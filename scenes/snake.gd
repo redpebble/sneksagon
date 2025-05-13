@@ -68,13 +68,18 @@ func move() -> void:
 	# NORMAL MOVEMENT
 	else:
 		move_sfx.play_random()
-		var move_tween = head.move(to_coords, move_interval)
-		if move_tween:
-			await move_tween.finished
+		head.chain_anim(head.move.bind(to_coords, move_interval))
 		if automatic_movement:
 			move_timer.start(move_interval)
 
-# Checks if the coordinates make sense to move to
+func is_moving() -> bool:
+	if head:
+		return head.is_chain_tweening()
+	else:
+		return false
+
+## Checks if the coordinates are part of the map
+## and are not "behind" the head.
 func is_valid_coords(to_coords: Vector2) -> bool:
 	var invalid_coords = [head.grid_coords]
 	# no backward movement if larger than one segment
@@ -117,12 +122,6 @@ func round_hexagonal(base_vector) -> Vector2:
 		hex_direction = move_vector
 	return hex_direction
 
-func is_moving() -> bool:
-	if head:
-		return head.chain_is_moving()
-	else:
-		return false
-
 ## Returns and array of flags for the collision:
 ## [dead, bump]
 func handle_collisions(to_coords : Vector2) -> Array:
@@ -137,29 +136,32 @@ func handle_collisions(to_coords : Vector2) -> Array:
 	elif entities_at_coords:
 		for e in entities_at_coords:
 			var is_body_part = e is SnakeHex && e != get_tail() and get_length() > 2
+			var is_obstacle = is_body_part or e is BlockHex
 			var is_collectable = e is AppleHex and not e.collected
 			
 			if is_body_part:
 				dead = true
 			
 			if is_collectable:
-				extend()
+				head.chain_anim(head.pulse.bind(1.15, 0.3), 0.15)
 				e.eat()
-			else:
+				extend()
+			
+			if is_obstacle:
 				bump = true
 	
 	return [dead, bump]
 
 func collide(collision_coords : Vector2, duration : float, dead : bool):
 	if dead:
-		get_tail().move_finished.connect(die)
-	var bump_distance = MapManager.get_hex_width() * 0.3
-	head.chain_bump(collision_coords, bump_distance, duration * 0.8)
+		get_tail().bump_finished.connect(die)
+	var bump_distance = MapManager.get_hex_width() * 0.25
+	head.chain_anim(head.bump.bind(collision_coords, bump_distance, duration), 0.03)
 	collide_sfx.play_random()
 	collided.emit()
 
 func die():
-	get_tail().move_finished.disconnect(die)
+	get_tail().bump_finished.disconnect(die)
 	move_timer.stop()
 	move_vector = Vector2.ZERO
 	died.emit()
