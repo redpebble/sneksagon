@@ -140,6 +140,7 @@ func handle_collisions(to_coords : Vector2) -> Array:
 			var is_collectable = e is AppleHex and not e.collected
 			
 			if is_body_part:
+				e.chain_anim(e.detach.bind(0.3), 0.15)
 				dead = true
 			
 			if is_collectable:
