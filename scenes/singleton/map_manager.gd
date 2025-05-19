@@ -64,8 +64,6 @@ func create_hex(hex_node: Hex, coords : Vector2, color : Color = Color.BLACK) ->
 
 	if hex_node is ObjectHex: # includes sub-classes, i.e. SnakeHex, AppleHex
 		record_entity(hex_node, coords)
-		hex_node.moved.connect(_on_hex_moved)
-		hex_node.tree_exiting.connect(_on_hex_tree_exiting.bind(hex_node))
 	else:
 		valid_coords[coords] = true
 
@@ -76,8 +74,6 @@ func create_hex(hex_node: Hex, coords : Vector2, color : Color = Color.BLACK) ->
 func clear() -> void:
 	for entity_array in entities.values():
 		for i in entity_array:
-			#do not wait for a signal to erase
-			i.tree_exiting.disconnect(_on_hex_tree_exiting)
 			#force instant erasure
 			erase_entity(i)
 			#delete the entity
@@ -99,6 +95,8 @@ func erase_entity(hex : Hex, coords : Vector2 = hex.grid_coords) -> void:
 	if entities.get(coords) != null:
 		#erase entity
 		if entities[coords].has(hex):
+			hex.moved.disconnect(_on_hex_moved)
+			hex.tree_exiting.disconnect(_on_hex_tree_exiting.bind(hex))
 			entities[coords].erase(hex)
 		else:
 			push_warning(str(hex) + " entry not found at coords " + str(coords))
@@ -110,6 +108,8 @@ func erase_entity(hex : Hex, coords : Vector2 = hex.grid_coords) -> void:
 
 # record entity at specified coordinates
 func record_entity(hex : Hex, coords : Vector2):
+	hex.moved.connect(_on_hex_moved)
+	hex.tree_exiting.connect(_on_hex_tree_exiting.bind(hex))
 	if entities.get(coords):
 		entities[coords].append(hex)
 	else:

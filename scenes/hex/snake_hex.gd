@@ -28,18 +28,11 @@ func chain_anim(method : Callable, delay_interval := 0.0) -> void:
 		method = method.bindv(args)
 		next_segment.chain_anim(method, delay_interval)
 
-func detach(duration : float):
+func detach():
 	if prev_segment:
 		prev_segment.next_segment = null
-	if scale_tween:
-		scale_tween.kill()
-	var scale_multiplier := 1.2
-	var original_scale = Vector2.ONE * MapManager.hex_scale * scale_factor
-	scale_tween = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	scale_tween.tween_property(self, "scale", original_scale * scale_multiplier, duration * 0.3)
-	scale_tween.set_ease(Tween.EASE_IN)
-	scale_tween.tween_property(self, "scale", Vector2.ZERO, duration * 0.7)
-	await scale_tween.finished
+	MapManager.erase_entity(self)
+	await shrink(0.3).finished
 	queue_free()
 
 func is_chain_tweening() -> bool:

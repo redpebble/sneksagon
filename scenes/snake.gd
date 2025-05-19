@@ -131,6 +131,7 @@ func handle_collisions(to_coords : Vector2) -> Array:
 	var map_has_coords = MapManager.valid_coords.has(to_coords)
 	
 	if not map_has_coords:
+		print("moved off map")
 		dead = true
 		bump = true
 	elif entities_at_coords:
@@ -140,7 +141,8 @@ func handle_collisions(to_coords : Vector2) -> Array:
 			var is_collectable = e is AppleHex and not e.collected
 			
 			if is_body_part:
-				e.chain_anim(e.detach.bind(0.3), 0.15)
+				e.chain_anim(e.detach, 0.05)
+				print("hit body")
 				dead = true
 			
 			if is_collectable:

@@ -56,6 +56,17 @@ func pulse(scale_multiplier : float, duration : float):
 	scale_tween.tween_property(self, "scale", original_scale, duration * 0.5)
 	#scale_tween.parallel().tween_property(self, "modulate", original_color, duration * 0.5)
 
+func shrink(duration : float):
+	if scale_tween:
+		scale_tween.kill()
+	var scale_multiplier := 1.2
+	var original_scale = Vector2.ONE * MapManager.hex_scale * scale_factor
+	scale_tween = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	scale_tween.tween_property(self, "scale", original_scale * scale_multiplier, duration * 0.3)
+	scale_tween.set_ease(Tween.EASE_IN)
+	scale_tween.tween_property(self, "scale", Vector2.ZERO, duration * 0.7)
+	return scale_tween
+
 func _on_bump_tween_finished():
 	bump_finished.emit()
 
