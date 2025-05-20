@@ -56,7 +56,7 @@ func pulse(scale_multiplier : float, duration : float):
 	scale_tween.tween_property(self, "scale", original_scale, duration * 0.5)
 	#scale_tween.parallel().tween_property(self, "modulate", original_color, duration * 0.5)
 
-func shrink(duration : float):
+func shrink(duration : float) -> Tween:
 	if scale_tween:
 		scale_tween.kill()
 	var scale_multiplier := 1.2

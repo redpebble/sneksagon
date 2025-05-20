@@ -68,7 +68,7 @@ func move() -> void:
 	# NORMAL MOVEMENT
 	else:
 		move_sfx.play_random()
-		head.chain_anim(head.move.bind(to_coords, move_interval))
+		head.propagate(head.move.bind(to_coords, move_interval))
 		if automatic_movement:
 			move_timer.start(move_interval)
 
@@ -131,7 +131,6 @@ func handle_collisions(to_coords : Vector2) -> Array:
 	var map_has_coords = MapManager.valid_coords.has(to_coords)
 	
 	if not map_has_coords:
-		print("moved off map")
 		dead = true
 		bump = true
 	elif entities_at_coords:
@@ -141,12 +140,11 @@ func handle_collisions(to_coords : Vector2) -> Array:
 			var is_collectable = e is AppleHex and not e.collected
 			
 			if is_body_part:
-				e.chain_anim(e.detach, 0.05)
-				print("hit body")
-				dead = true
+				# detach segments after collision point
+				e.propagate(e.detach.bind(0.25), 0.05)
 			
 			if is_collectable:
-				head.chain_anim(head.pulse.bind(1.15, 0.3), 0.15)
+				head.propagate(head.pulse.bind(1.15, 0.3), 0.15)
 				e.eat()
 				extend()
 			
@@ -159,7 +157,7 @@ func collide(collision_coords : Vector2, duration : float, dead : bool):
 	if dead:
 		get_tail().bump_finished.connect(die)
 	var bump_distance = MapManager.get_hex_width() * 0.25
-	head.chain_anim(head.bump.bind(collision_coords, bump_distance, duration), 0.03)
+	head.propagate(head.bump.bind(collision_coords, bump_distance, duration), 0.03)
 	collide_sfx.play_random()
 	collided.emit()
 

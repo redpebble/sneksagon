@@ -1,6 +1,7 @@
 class_name SnakeHex
 extends ObjectHex
 
+var propagation_timer : SceneTreeTimer = null
 var prev_segment : SnakeHex = null
 var next_segment : SnakeHex = null
 
@@ -11,11 +12,14 @@ func _draw() -> void:
 	if next_segment:
 		draw_line(Vector2.ZERO, to_local(next_segment.global_position), modulate, 1)
 
-func chain_anim(method : Callable, delay_interval := 0.0) -> void:
+## Calls the provided function first, then has the next segment do the same.
+func propagate(method : Callable, delay_interval := 0.0) -> void:
 	# defer call for this segment to avoid grid_coords being changed to soon
 	method.call_deferred()
+	# delay before propogation
 	if delay_interval > 0:
-		await get_tree().create_timer(delay_interval).timeout
+		propagation_timer = get_tree().create_timer(delay_interval)
+		await propagation_timer.timeout
 	if next_segment:
 		# preserve arguments
 		var args = method.get_bound_arguments()
@@ -26,13 +30,19 @@ func chain_anim(method : Callable, delay_interval := 0.0) -> void:
 			args[0] = grid_coords
 		# rebind arguments
 		method = method.bindv(args)
-		next_segment.chain_anim(method, delay_interval)
+		next_segment.propagate(method, delay_interval)
 
-func detach():
+func detach(duration := 0.25):
 	if prev_segment:
 		prev_segment.next_segment = null
 	MapManager.erase_entity(self)
-	await shrink(0.3).finished
+	shrink(duration).finished.connect(propagation_safe_free)
+	#modulate = Color.WHITE
+
+# Waits to free until propogation has been sent from this segment
+func propagation_safe_free():
+	if propagation_timer:
+		await propagation_timer.timeout
 	queue_free()
 
 func is_chain_tweening() -> bool:
