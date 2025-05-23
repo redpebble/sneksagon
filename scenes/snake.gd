@@ -31,11 +31,6 @@ func _process(_delta: float) -> void:
 		update_highlight()
 	queue_redraw()
 
-func update_move_vector():
-	var potential_vector = get_closest_valid_vector(input_parser.get_input_vector())
-	if potential_vector != Vector2.ZERO:
-		move_vector = potential_vector
-
 func update_highlight():
 	var show_highlight : = true
 	var to_coords := Vector2.ZERO
@@ -44,8 +39,13 @@ func update_highlight():
 		show_highlight = is_valid_coords(to_coords)
 	Highlighter.highlight_coords(to_coords, show_highlight)
 
+# TRAVERSAL -------------------------------------------------------------------------------------- #
 
-## TRAVERSAL ##
+func update_move_vector():
+	var potential_vector = get_closest_valid_vector(input_parser.get_input_vector())
+	if potential_vector != Vector2.ZERO:
+		move_vector = potential_vector
+
 func _on_move_timer_timeout():
 	if not automatic_movement:
 		return
@@ -82,14 +82,13 @@ func is_moving() -> bool:
 ## and are not "behind" the head.
 func is_valid_coords(to_coords: Vector2) -> bool:
 	var invalid_coords = [head.grid_coords]
-	# no backward movement if larger than one segment
 	if get_length() > 1:
 		invalid_coords.append(head.last_coords)
 	
 	return not invalid_coords.has(to_coords)
 
-# Checks for valid vectors, starting from the input vector, alternating sides for each check
-# Returns the closest vector which would move to a valid coordinate
+## Checks for valid vectors, starting from the input vector, alternating sides for each check
+## Returns the closest vector which would move to a valid coordinate
 func get_closest_valid_vector(input_vector : Vector2):
 	var closest := Vector2.ZERO
 	var angle_interval = PI/3
@@ -111,27 +110,28 @@ func get_closest_valid_vector(input_vector : Vector2):
 			closest = potential_vector
 			break
 	return closest
-	
+
+## Converts a vector to a hexagonal direction.
 func round_hexagonal(base_vector) -> Vector2:
 	var hex_direction : Vector2
 	hex_direction.x = roundi(base_vector.x)
-	#max out vertical input to eliminate "sticky" horizontal movement
+	# max out vertical input to eliminate "sticky" horizontal movement
 	hex_direction.y = ceili(abs(base_vector.y)) * sign(base_vector.y)
 	# default to the last move vector if the base vector is perfectly left or right
 	if hex_direction == Vector2.LEFT or hex_direction == Vector2.RIGHT:
 		hex_direction = move_vector
 	return hex_direction
 
-## Returns and array of flags for the collision:
-## [dead, bump]
+## Executes specific logic per entity type and then
+## returns collision flags: [hit_wall, bump]
 func handle_collisions(to_coords : Vector2) -> Array:
-	var dead := false
+	var hit_wall := false
 	var bump := false
 	var entities_at_coords = MapManager.entities.get(to_coords)
 	var map_has_coords = MapManager.valid_coords.has(to_coords)
 	
 	if not map_has_coords:
-		dead = true
+		hit_wall = true
 		bump = true
 	elif entities_at_coords:
 		for e in entities_at_coords:
@@ -151,29 +151,35 @@ func handle_collisions(to_coords : Vector2) -> Array:
 			if is_obstacle:
 				bump = true
 	
-	return [dead, bump]
+	return [hit_wall, bump]
 
-func collide(collision_coords : Vector2, duration : float, dead : bool):
-	if dead:
-		get_tail().bump_finished.connect(die)
+func collide(collision_coords : Vector2, duration : float, hit_wall : bool):
 	var bump_distance = MapManager.get_hex_width() * 0.25
-	head.propagate(head.bump.bind(collision_coords, bump_distance, duration), 0.03)
+	if hit_wall:
+		# only animate the head bumping
+		head.bump(collision_coords, bump_distance, duration)
+		detach_all()
+	else:
+		head.propagate(head.bump.bind(collision_coords, bump_distance, duration), 0.03)
+	
 	collide_sfx.play_random()
 	collided.emit()
 
+## Stops current motion and emits the "died" signal
 func die():
-	get_tail().bump_finished.disconnect(die)
 	move_timer.stop()
 	move_vector = Vector2.ZERO
 	died.emit()
 
+# SEGMENT CONTROL -------------------------------------------------------------------------------- #
 
-## SEGMENT CONTROL ##
+## Creates the base segment of a snake at the given coordinates
 func make_head(hex_coords : Vector2) -> void:
 	head = MapManager.create_hex(snake_hex_scene.instantiate(), hex_coords, color.lightened(0.15))
 	if automatic_movement:
 		move_timer.start(move_interval)
 
+## Creates a new segment at the tail's grid coordinates
 func extend() -> void:
 	var tail := get_tail()
 	if tail:
@@ -181,12 +187,24 @@ func extend() -> void:
 		tail.next_segment = new_hex
 		new_hex.prev_segment = tail
 
+## Detaches all segments from the head.
+func detach_all():
+	if get_length() > 1:
+		# save reference to tail
+		var tail = get_tail()
+		head.next_segment.propagate(head.next_segment.detach.bind(0.25), 0.05)
+		await tail.detach_finished
+		# delay briefly afterwards
+		await get_tree().create_timer(0.2).timeout
+
+## Gets the snake's last segment.
 func get_tail() -> SnakeHex:
 	var current_hex := head
 	while current_hex.next_segment != null:
 		current_hex = current_hex.next_segment
 	return current_hex
 
+## Returns the number of sequential segments connected to the head.
 func get_length() -> int:
 	var current_hex := head
 	var length = 0

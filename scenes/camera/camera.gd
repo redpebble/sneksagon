@@ -11,7 +11,7 @@ func _ready() -> void:
 	GameManager.camera = self
 
 func small_shake() -> void:
-	screen_shake.start(0.25, 30, 8.5, 0)
+	screen_shake.start(0.3, 30, 10, 0)
 
 func _process(_delta: float) -> void:
 	var target_pos = initial_position

@@ -11,6 +11,7 @@ var scale_factor = 0.8
 
 var move_tween : Tween = null
 var scale_tween : Tween = null
+var color_tween : Tween = null
 
 func _ready() -> void:
 	z_index = 10
@@ -66,6 +67,15 @@ func shrink(duration : float) -> Tween:
 	scale_tween.set_ease(Tween.EASE_IN)
 	scale_tween.tween_property(self, "scale", Vector2.ZERO, duration * 0.7)
 	return scale_tween
+
+func flash(amount : float, duration : float) -> Tween:
+	if color_tween:
+		color_tween.kill()
+	modulate = modulate.lightened(amount)
+	color_tween = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	color_tween.tween_property(self, "modulate", original_color, duration)
+	return color_tween
+
 
 func _on_bump_tween_finished():
 	bump_finished.emit()

@@ -1,6 +1,8 @@
 class_name SnakeHex
 extends ObjectHex
 
+signal detach_finished
+
 var propagation_timer : SceneTreeTimer = null
 var prev_segment : SnakeHex = null
 var next_segment : SnakeHex = null
@@ -36,11 +38,12 @@ func detach(duration := 0.25):
 	if prev_segment:
 		prev_segment.next_segment = null
 	MapManager.erase_entity(self)
-	shrink(duration).finished.connect(propagation_safe_free)
-	#modulate = Color.WHITE
+	flash(1.0, duration * 0.8)
+	await shrink(duration).finished
+	detach_finished.emit()
 
 # Waits to free until propogation has been sent from this segment
-func propagation_safe_free():
+func _on_shrink_finished():
 	if propagation_timer:
 		await propagation_timer.timeout
 	queue_free()
