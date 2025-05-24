@@ -5,12 +5,14 @@ signal hex_scale_changed(scale)
 const HEX_COL_RATIO = 0.75
 const HEX_ROW_RATIO = 0.866
 
-var map_node: Node2D = null
+var map_node : Node2D = null
+var wave_timer : SceneTreeTimer = null
 
 # we're using arrays to deal with grid position overwriting issues when the snake moves
 var entities : Dictionary[Vector2, Array] = {}
+var valid_coords : Dictionary[Vector2, Hex] = {} # there is no Set structure in GDScript
+var background : Dictionary[Vector2, Hex] = {}
 
-var valid_coords : Dictionary[Vector2, bool] = {} # there is no Set structure in GDScript
 var grid_map_origin := Vector2.ZERO
 var hex_scale: int = 60 : set = set_hex_scale
 
@@ -24,6 +26,12 @@ var directions := {
 	"down"       = Vector2.DOWN,
 	"down_left"  = Vector2.DOWN + Vector2.LEFT,
 	"down_right" = Vector2.DOWN + Vector2.RIGHT
+}
+
+enum Layers {
+	BACKGROUND,
+	TILES,
+	ENTITIES
 }
 
 func set_hex_scale(_hex_scale):
@@ -56,20 +64,22 @@ func get_adjacent_hex_coords(coords : Vector2, direction : Vector2) -> Vector2:
 		directions.down_right: return coords + Vector2(1, 0)
 		_: return coords
 
-func create_hex(hex_node: Hex, coords : Vector2, color : Color = Color.BLACK) -> Node2D:
-	hex_node.grid_coords = coords
-	hex_node.scale *= hex_scale
-	hex_node.position = get_hex_world_position(coords)
-	hex_node.modulate = color
-
-	if hex_node is ObjectHex: # includes sub-classes, i.e. SnakeHex, AppleHex
-		record_entity(hex_node, coords)
-	else:
-		valid_coords[coords] = true
-
-	map_node.call_deferred("add_child", hex_node)
-
-	return hex_node
+func create_hex(hex_instance : Hex, coords : Vector2, layer : int, color := Color.BLACK) -> Node2D:
+	hex_instance.grid_coords = coords
+	hex_instance.scale *= hex_scale
+	hex_instance.position = get_hex_world_position(coords)
+	hex_instance.modulate = color
+	
+	match layer:
+		Layers.BACKGROUND:
+			background[coords] = hex_instance
+		Layers.TILES:
+			valid_coords[coords] = hex_instance
+		Layers.ENTITIES:
+			record_entity(hex_instance, coords)
+	
+	map_node.call_deferred("add_child", hex_instance)
+	return hex_instance
 
 func clear() -> void:
 	for entity_array in entities.values():
@@ -134,14 +144,14 @@ func spawn_apple() -> void:
 	if empty_cell != null:
 		var apple_inst : AppleHex = apple_scene.instantiate()
 		apple_inst.just_collected.connect(_on_apple_just_collected)
-		create_hex(apple_inst, empty_cell, Color.RED)
+		create_hex(apple_inst, empty_cell, MapManager.Layers.ENTITIES, Color.RED)
 	else:
 		push_warning("No empty cells. Apple not spawned.")
 
 func spawn_block(at_coords : Vector2) -> void:
 	if not is_empty_cell(at_coords):
 		return
-	create_hex(block_scene.instantiate(), at_coords, Color.BLUE)
+	create_hex(block_scene.instantiate(), at_coords, MapManager.Layers.ENTITIES, Color.BLUE)
 
 func _on_apple_just_collected() -> void:
 	spawn_apple()
@@ -151,3 +161,38 @@ func scale_to_hex_width(node: Node2D, input_width : float):
 		push_warning("Cannot calculate scale value from input of 0. Returning 1.0.")
 		return
 	node.scale = Vector2.ONE * get_hex_width() / input_width
+
+# Background Animations ---------------------------------------------------------------------------#
+
+func start_wave_timer():
+	wave_timer = get_tree().create_timer(3.0)
+	wave_timer.timeout.connect(_on_wave_timer_timeout)
+
+func _on_wave_timer_timeout():
+	start_wave_timer()
+	var grid := valid_coords.keys()
+	var screen_size : Vector2 = get_window().size
+	var edge_coverage = 2
+	var cols : int = edge_coverage + floori(screen_size.x / MapManager.get_hex_width() / MapManager.HEX_COL_RATIO)
+	var rows : int = edge_coverage + floori(screen_size.y / MapManager.get_hex_width() / MapManager.HEX_ROW_RATIO)
+	var origin_offset = floor(Vector2i(cols, floori(rows / 2.0)) / 2.0)
+	
+	for i in cols:
+		for j in rows:
+			var shift_amount : int = floori(0.5 * i) * -1
+			var shifted_j    : int = j + shift_amount
+			var coords = Vector2(i, shifted_j) - Vector2(origin_offset)
+			
+			if background.get(coords):
+				var h : Hex = background[coords]
+				h.pulse(0.3, 2.0)
+		await get_tree().create_timer(0.2).timeout
+
+func begin_background_pulse():
+	var pulse_interval = 0.03
+	var all_coords = background.keys()
+	while not all_coords.is_empty():
+		var hex = background[all_coords.pop_back()]
+		hex.loop(hex.pulse.bind(0.2, 8.0), 0.3)
+		all_coords.shuffle()
+		await get_tree().create_timer(pulse_interval).timeout

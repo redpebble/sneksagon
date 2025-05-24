@@ -5,17 +5,13 @@ signal moved(hex_node, from_pos, to_pos)
 signal bump_finished
 
 @onready var last_coords := grid_coords
-@onready var original_color := modulate
-
-var scale_factor = 0.8
 
 var move_tween : Tween = null
-var scale_tween : Tween = null
-var color_tween : Tween = null
 
 func _ready() -> void:
+	scale_factor = 0.8
 	z_index = 10
-	scale *= scale_factor
+	super()
 
 func move(to_coords : Vector2, duration := 0.3) -> Tween:
 	if move_tween:
@@ -46,36 +42,6 @@ func bump(to_coords : Vector2, amount : float, duration : float):
 	move_tween.set_trans(Tween.TRANS_CIRC).set_ease(Tween.EASE_IN_OUT)
 	move_tween.tween_property(self, "global_position", initial_pos, duration * 0.5)
 	move_tween.finished.connect(_on_bump_tween_finished)
-
-func pulse(scale_multiplier : float, duration : float):
-	if scale_tween:
-		scale_tween.kill()
-	var original_scale = Vector2.ONE * MapManager.hex_scale * scale_factor
-	scale_tween = create_tween().set_trans(Tween.TRANS_LINEAR).set_ease(Tween.EASE_IN_OUT)
-	scale_tween.tween_property(self, "scale", original_scale * scale_multiplier, duration * 0.5)
-	#scale_tween.parallel().tween_property(self, "modulate", original_color.lightened(0.1), duration * 0.5)
-	scale_tween.tween_property(self, "scale", original_scale, duration * 0.5)
-	#scale_tween.parallel().tween_property(self, "modulate", original_color, duration * 0.5)
-
-func shrink(duration : float) -> Tween:
-	if scale_tween:
-		scale_tween.kill()
-	var scale_multiplier := 1.2
-	var original_scale = Vector2.ONE * MapManager.hex_scale * scale_factor
-	scale_tween = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	scale_tween.tween_property(self, "scale", original_scale * scale_multiplier, duration * 0.3)
-	scale_tween.set_ease(Tween.EASE_IN)
-	scale_tween.tween_property(self, "scale", Vector2.ZERO, duration * 0.7)
-	return scale_tween
-
-func flash(amount : float, duration : float) -> Tween:
-	if color_tween:
-		color_tween.kill()
-	modulate = modulate.lightened(amount)
-	color_tween = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	color_tween.tween_property(self, "modulate", original_color, duration)
-	return color_tween
-
 
 func _on_bump_tween_finished():
 	bump_finished.emit()

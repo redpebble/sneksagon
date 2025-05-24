@@ -1,7 +1,7 @@
 extends Node2D
 
 @export var hex_color : Color = Color.WHITE
-@export_range(0.0, 0.5, 0.05) var grid_contrast : float = 0.15
+@export_range(0.0, 0.5, 0.01) var grid_contrast : float = 0.10
 
 @onready var camera = $Camera2D
 
@@ -11,7 +11,9 @@ func _ready() -> void:
 	MapManager.map_node = self
 	#populate_grid()
 	generate_grid(3)
-	#populate_screen_remainder()
+	populate_screen_remainder()
+	#MapManager.start_wave_timer()
+	MapManager.begin_background_pulse()
 
 func populate_grid():
 	var playfield : Vector2 = get_window().size * 0.6
@@ -28,7 +30,7 @@ func populate_grid():
 			var shift_amount : int = floori(0.5 * i) * -1
 			var adjusted_j   : int = j + shift_amount
 			var d = wrapi(adjusted_j - wrapi(i, 0, 3), 0, 3) * grid_contrast
-			MapManager.create_hex(hex_scene.instantiate(), Vector2(i, adjusted_j), hex_color.darkened(d))
+			MapManager.create_hex(hex_scene.instantiate(), Vector2(i, adjusted_j), MapManager.Layers.TILES, hex_color.darkened(d))
 
 
 func generate_grid(side_length : int):
@@ -54,7 +56,7 @@ func generate_grid(side_length : int):
 			var d = wrapi(j + wrapi(i + i_shift , 0, 3), 0, 3) * grid_contrast
 			# create hex with respect the grid's center
 			var hex_coords = grid_center_offset + Vector2(i + i_shift, -j)
-			MapManager.create_hex(hex_scene.instantiate(), hex_coords, hex_color.darkened(d))
+			MapManager.create_hex(hex_scene.instantiate(), hex_coords, MapManager.Layers.TILES, hex_color.darkened(d))
 
 func populate_screen_remainder():
 	var grid := MapManager.valid_coords.keys()
@@ -71,5 +73,6 @@ func populate_screen_remainder():
 			var coords = Vector2(i, shifted_j) - Vector2(origin_offset)
 			
 			if not grid.has(coords):
-				var d = wrapi(coords.y - wrapi(i, 0, 3), 0, 3) * grid_contrast
-				MapManager.create_hex(hex_scene.instantiate(), coords, hex_color.darkened(d))
+				# brightness patterning
+				#var d = wrapi(coords.y - wrapi(i, 0, 3), 0, 3) * grid_contrast
+				MapManager.create_hex(hex_scene.instantiate(), coords, MapManager.Layers.BACKGROUND, Color(Color.BLACK, 0.25))

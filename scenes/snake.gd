@@ -144,7 +144,7 @@ func handle_collisions(to_coords : Vector2) -> Array:
 				e.propagate(e.detach.bind(0.25), 0.05)
 			
 			if is_collectable:
-				head.propagate(head.pulse.bind(1.15, 0.3), 0.15)
+				head.propagate(head.swell.bind(1.15, 0.3), 0.15)
 				e.eat()
 				extend()
 			
@@ -175,7 +175,7 @@ func die():
 
 ## Creates the base segment of a snake at the given coordinates
 func make_head(hex_coords : Vector2) -> void:
-	head = MapManager.create_hex(snake_hex_scene.instantiate(), hex_coords, color.lightened(0.15))
+	head = MapManager.create_hex(snake_hex_scene.instantiate(), hex_coords, MapManager.Layers.ENTITIES, color.lightened(0.15))
 	if automatic_movement:
 		move_timer.start(move_interval)
 
@@ -183,7 +183,7 @@ func make_head(hex_coords : Vector2) -> void:
 func extend() -> void:
 	var tail := get_tail()
 	if tail:
-		var new_hex : SnakeHex = MapManager.create_hex(snake_hex_scene.instantiate(), tail.grid_coords, color)
+		var new_hex : SnakeHex = MapManager.create_hex(snake_hex_scene.instantiate(), tail.grid_coords, MapManager.Layers.ENTITIES, color)
 		tail.next_segment = new_hex
 		new_hex.prev_segment = tail
 
