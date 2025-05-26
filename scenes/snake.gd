@@ -141,7 +141,7 @@ func handle_collisions(to_coords : Vector2) -> Array:
 			
 			if is_body_part:
 				# detach segments after collision point
-				e.propagate(e.detach.bind(0.25), 0.05)
+				detach_at(e)
 			
 			if is_collectable:
 				head.propagate(head.swell.bind(1.15, 0.3), 0.15)
@@ -158,7 +158,7 @@ func collide(collision_coords : Vector2, duration : float, hit_wall : bool):
 	if hit_wall:
 		# only animate the head bumping
 		head.bump(collision_coords, bump_distance, duration)
-		detach_all()
+		detach_at(head.next_segment)
 	else:
 		head.propagate(head.bump.bind(collision_coords, bump_distance, duration), 0.03)
 	
@@ -173,13 +173,13 @@ func die():
 
 # SEGMENT CONTROL -------------------------------------------------------------------------------- #
 
-## Creates the base segment of a snake at the given coordinates
+## Creates the base segment of a snake at the given coordinates.
 func make_head(hex_coords : Vector2) -> void:
 	head = MapManager.create_hex(snake_hex_scene.instantiate(), hex_coords, MapManager.Layers.ENTITIES, color.lightened(0.15))
 	if automatic_movement:
 		move_timer.start(move_interval)
 
-## Creates a new segment at the tail's grid coordinates
+## Creates a new segment at the tail's grid coordinates.
 func extend() -> void:
 	var tail := get_tail()
 	if tail:
@@ -187,15 +187,10 @@ func extend() -> void:
 		tail.next_segment = new_hex
 		new_hex.prev_segment = tail
 
-## Detaches all segments from the head.
-func detach_all():
-	if get_length() > 1:
-		# save reference to tail
-		var tail = get_tail()
-		head.next_segment.propagate(head.next_segment.detach.bind(0.25), 0.05)
-		await tail.detach_finished
-		# delay briefly afterwards
-		await get_tree().create_timer(0.2).timeout
+## Detaches the given segment and all that follow it.
+func detach_at(segment : SnakeHex):
+	if segment and segment != head:
+		segment.propagate(segment.detach.bind(0.15), 0.04)
 
 ## Gets the snake's last segment.
 func get_tail() -> SnakeHex:

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="32"
+   height="32"
+   viewBox="0 0 32 32"
+   version="1.1"
+   id="svg1"
+   inkscape:export-filename="snake_eye\shine.png"
+   inkscape:export-xdpi="2560"
+   inkscape:export-ydpi="2560"
+   inkscape:version="1.3.2 (091e20e, 2023-11-25, custom)"
+   sodipodi:docname="snake_eye.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="px"
+     showgrid="true"
+     inkscape:zoom="16.833558"
+     inkscape:cx="28.03923"
+     inkscape:cy="18.682919"
+     inkscape:window-width="2560"
+     inkscape:window-height="1377"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g4">
+    <inkscape:grid
+       id="grid1"
+       units="px"
+       originx="0"
+       originy="0"
+       spacingx="1"
+       spacingy="1"
+       empcolor="#3f3fff"
+       empopacity="0.25098039"
+       color="#3f3fff"
+       opacity="0.1254902"
+       empspacing="4"
+       dotted="false"
+       gridanglex="30"
+       gridanglez="30"
+       visible="true" />
+  </sodipodi:namedview>
+  <defs
+     id="defs1" />
+  <circle
+     style="fill:#7ea71b;fill-opacity:1"
+     id="path1"
+     cx="16"
+     cy="16"
+     r="12"
+     inkscape:label="iris" />
+  <ellipse
+     style="fill:#34440b;fill-opacity:1;stroke-width:1.41753"
+     id="path2"
+     cx="16"
+     cy="16"
+     inkscape:label="pupil"
+     rx="8.930707"
+     ry="9" />
+  <g
+     id="g4"
+     inkscape:label="Shine"
+     style="opacity:1;mix-blend-mode:normal"
+     transform="matrix(0.44444444,0,0,0.44444444,4.6666667,5.7777778)">
+    <circle
+       style="fill:#ffffff;fill-opacity:1;stroke-width:3.75002"
+       id="path3"
+       cx="13.125"
+       cy="10.625"
+       r="5.625" />
+    <circle
+       style="fill:#ffffff;fill-opacity:1;stroke-width:3.75002"
+       id="circle12"
+       cx="13.125"
+       cy="10.625"
+       r="5.625" />
+  </g>
+</svg>

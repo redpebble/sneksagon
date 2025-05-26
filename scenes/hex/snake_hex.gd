@@ -34,11 +34,11 @@ func propagate(method : Callable, delay_interval := 0.0) -> void:
 		method = method.bindv(args)
 		next_segment.propagate(method, delay_interval)
 
-func detach(duration := 0.25):
+func detach(duration := 0.2):
 	if prev_segment:
 		prev_segment.next_segment = null
 	MapManager.erase_entity(self)
-	flash(1.0, duration * 0.8)
+	flash(0.6, duration)
 	await shrink(duration).finished
 	detach_finished.emit()
 

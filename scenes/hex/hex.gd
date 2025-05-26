@@ -25,7 +25,7 @@ func shrink(duration : float) -> Tween:
 		scale_tween.kill()
 	var scale_multiplier := 1.2
 	var original_scale = Vector2.ONE * MapManager.hex_scale * scale_factor
-	scale_tween = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	scale_tween = create_tween().set_trans(Tween.TRANS_CIRC).set_ease(Tween.EASE_OUT)
 	scale_tween.tween_property(self, "scale", original_scale * scale_multiplier, duration * 0.3)
 	scale_tween.set_ease(Tween.EASE_IN)
 	scale_tween.tween_property(self, "scale", Vector2.ZERO, duration * 0.7)

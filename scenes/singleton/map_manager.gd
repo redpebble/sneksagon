@@ -170,7 +170,6 @@ func start_wave_timer():
 
 func _on_wave_timer_timeout():
 	start_wave_timer()
-	var grid := valid_coords.keys()
 	var screen_size : Vector2 = get_window().size
 	var edge_coverage = 2
 	var cols : int = edge_coverage + floori(screen_size.x / MapManager.get_hex_width() / MapManager.HEX_COL_RATIO)
@@ -193,6 +192,6 @@ func begin_background_pulse():
 	var all_coords = background.keys()
 	while not all_coords.is_empty():
 		var hex = background[all_coords.pop_back()]
-		hex.loop(hex.pulse.bind(0.2, 8.0), 0.3)
+		hex.loop(hex.pulse.bind(0.15, 8.0), 0.3)
 		all_coords.shuffle()
 		await get_tree().create_timer(pulse_interval).timeout
