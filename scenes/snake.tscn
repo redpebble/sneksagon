@@ -37,7 +37,6 @@ one_shot = true
 [node name="Eye" type="Node2D" parent="."]
 z_index = 100
 script = ExtResource("6_oj63r")
-tracking_strength = 0.2
 
 [node name="Iris" type="Sprite2D" parent="Eye"]
 texture = ExtResource("7_f07f3")
