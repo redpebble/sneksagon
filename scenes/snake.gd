@@ -14,6 +14,7 @@ signal died
 @onready var collide_sfx = $CollideSFX
 @onready var move_timer = $MoveTimer
 @onready var input_parser = $InputParser
+@onready var fangs = $HeadCosmetics/Fangs
 
 var snake_hex_scene = preload("res://scenes/hex/snake_hex.tscn")
 var head : SnakeHex = null
@@ -71,6 +72,10 @@ func move() -> void:
 		head.propagate(head.move.bind(to_coords, move_interval))
 		if automatic_movement:
 			move_timer.start(move_interval)
+	
+	var dest_position = MapManager.get_hex_world_position(to_coords)
+	var move_direction = global_position.direction_to(dest_position)
+	fangs.match_rotation_to(move_direction)
 
 func is_moving() -> bool:
 	if head:
@@ -146,6 +151,7 @@ func handle_collisions(to_coords : Vector2) -> Array:
 			if is_collectable:
 				head.propagate(head.swell.bind(1.15, 0.3), 0.15)
 				e.eat()
+				fangs.close()
 				extend()
 			
 			if is_obstacle:
@@ -176,6 +182,7 @@ func die():
 ## Creates the base segment of a snake at the given coordinates.
 func make_head(hex_coords : Vector2) -> void:
 	head = MapManager.create_hex(snake_hex_scene.instantiate(), hex_coords, MapManager.Layers.ENTITIES, color.lightened(0.15))
+	head.set_shape_state(0)
 	if automatic_movement:
 		move_timer.start(move_interval)
 
@@ -184,6 +191,7 @@ func extend() -> void:
 	var tail := get_tail()
 	if tail:
 		var new_hex : SnakeHex = MapManager.create_hex(snake_hex_scene.instantiate(), tail.grid_coords, MapManager.Layers.ENTITIES, color)
+		new_hex.set_shape_state(2)
 		tail.next_segment = new_hex
 		new_hex.prev_segment = tail
 

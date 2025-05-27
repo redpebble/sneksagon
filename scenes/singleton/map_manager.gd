@@ -190,8 +190,8 @@ func _on_wave_timer_timeout():
 func begin_background_pulse():
 	var pulse_interval = 0.03
 	var all_coords = background.keys()
+	all_coords.shuffle()
 	while not all_coords.is_empty():
 		var hex = background[all_coords.pop_back()]
 		hex.loop(hex.pulse.bind(0.15, 8.0), 0.3)
-		all_coords.shuffle()
 		await get_tree().create_timer(pulse_interval).timeout

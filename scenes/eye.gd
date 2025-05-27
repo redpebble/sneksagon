@@ -7,11 +7,11 @@ extends Node2D
 @export_range(10, 100, 5) var tracking_speed = 10
 
 var max_mouse_distance := 120.0
-var max_pupil_offset := 150.0
+var max_pupil_offset := 140.0
 var min_scale_x = 0.3
 
 func _ready() -> void:
-	MapManager.scale_to_hex_width(self, iris.texture.get_width() * 2.2)
+	MapManager.scale_to_hex_width(self, iris.texture.get_width() * 1.2)
 
 func _process(delta: float) -> void:
 	var mouse_direction = global_position.direction_to(get_global_mouse_position())
@@ -30,5 +30,5 @@ func _process(delta: float) -> void:
 	pupil.scale.x  = lerp(pupil.scale.x, new_scale_x, tracking_speed * delta)
 	
 	# shift the shine slowly to add weight to the motion
-	var shine_pivot = mouse_direction.normalized() * 10
+	var shine_pivot = mouse_direction.normalized() * 15
 	shine.offset = lerp(shine.offset, shine_pivot, tracking_speed * delta * 0.2)

@@ -1,9 +1,22 @@
-[gd_scene load_steps=2 format=3 uid="uid://b2k5i8r31na11"]
+[gd_scene load_steps=4 format=3 uid="uid://b2k5i8r31na11"]
 
 [ext_resource type="Script" uid="uid://bpawfpvq563jl" path="res://scenes/hex/hex.gd" id="1_b6u1t"]
+[ext_resource type="Texture2D" uid="uid://b15yv8sjscam0" path="res://assets/Textures/circle.png" id="2_wcvii"]
+[ext_resource type="Texture2D" uid="uid://ppg0l17q6cps" path="res://assets/Textures/snake_eye/outer_shadow.png" id="3_k6t16"]
 
 [node name="Hex" type="Node2D"]
 script = ExtResource("1_b6u1t")
 
 [node name="Polygon2D" type="Polygon2D" parent="."]
 polygon = PackedVector2Array(1, 0, 0.5, 0.866, -0.5, 0.866, -1, 0, -0.5, -0.866, 0.5, -0.866)
+
+[node name="Circle" type="Sprite2D" parent="."]
+visible = false
+scale = Vector2(0.00270996, 0.00270996)
+texture = ExtResource("2_wcvii")
+
+[node name="Shadow" type="Sprite2D" parent="Circle"]
+modulate = Color(1, 1, 1, 0.298039)
+show_behind_parent = true
+scale = Vector2(1.21076, 1.21076)
+texture = ExtResource("3_k6t16")

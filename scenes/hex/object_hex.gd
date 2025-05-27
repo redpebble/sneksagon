@@ -9,7 +9,7 @@ signal bump_finished
 var move_tween : Tween = null
 
 func _ready() -> void:
-	scale_factor = 0.8
+	scale_factor = 0.75
 	z_index = 10
 	super()
 

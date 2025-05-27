@@ -12,6 +12,18 @@ var color_tween : Tween = null
 func _ready() -> void:
 	scale *= scale_factor
 
+func set_shape_state(state : int):
+	match(state):
+		0:
+			$Polygon2D.visible = false
+			$Circle.visible = false
+		1:
+			$Polygon2D.visible = true
+			$Circle.visible = false
+		2:
+			$Polygon2D.visible = false
+			$Circle.visible = true
+
 func swell(scale_multiplier : float, duration : float):
 	if scale_tween:
 		scale_tween.kill()
