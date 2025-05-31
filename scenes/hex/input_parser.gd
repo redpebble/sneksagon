@@ -41,18 +41,17 @@ func get_mouse_input_vector(from_pos : Vector2) -> Vector2:
 	var min_dist = MapManager.get_hex_width() * 0.2
 	if from_pos.distance_to(mouse_pos) > min_dist:
 		v = from_pos.direction_to(mouse_pos)
-	return v
+	return v 
 
-func get_joystick_input_vector():
+func get_joystick_input_vector(deadzone := 0.5) -> Vector2:
 	var x = Input.get_axis("joystick_left", "joystick_right")
 	var y = Input.get_axis("joystick_up", "joystick_down")
 	var v = Vector2(x, y)
-	# set input deadzone
-	if v.length() < 0.5:
+	if v.length() < deadzone:
 		v = Vector2.ZERO
 	return v
 
-func get_keyboard_input_vector():
+func get_keyboard_input_vector() -> Vector2:
 	var v = Vector2.ZERO
 	if key_input_queue.size() > 0:
 		# set the vector to the most recently queued direction

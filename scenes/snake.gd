@@ -15,6 +15,7 @@ signal died
 @onready var move_timer = $MoveTimer
 @onready var input_parser = $InputParser
 @onready var fangs = $HeadCosmetics/Fangs
+@onready var eye = $HeadCosmetics/Eye
 
 var snake_hex_scene = preload("res://scenes/hex/snake_hex.tscn")
 var head : SnakeHex = null
@@ -30,7 +31,7 @@ func _process(_delta: float) -> void:
 	if not is_moving():
 		update_move_vector()
 		update_highlight()
-	queue_redraw()
+	update_eye_target()
 
 func update_highlight():
 	var show_highlight : = true
@@ -39,6 +40,36 @@ func update_highlight():
 		to_coords = MapManager.get_adjacent_hex_coords(head.grid_coords, move_vector)
 		show_highlight = is_valid_coords(to_coords)
 	Highlighter.highlight_coords(to_coords, show_highlight)
+
+func update_eye_target():
+	var target_vector := Vector2.ZERO
+	var to_coords = MapManager.get_adjacent_hex_coords(head.grid_coords, move_vector)
+	var coords_pos = MapManager.get_hex_world_position(to_coords)
+	
+	match input_parser.input_type:
+		input_parser.input_types.MOUSE:
+			target_vector = get_global_mouse_position()
+		input_parser.input_types.CONTROLLER:
+			var raw_joystick_input : Vector2 = input_parser.get_joystick_input_vector(0.1)
+			var proxy_direction = raw_joystick_input.normalized()
+			var proxy_distance = eye.max_target_distance
+			
+			if input_parser.get_joystick_input_vector() == Vector2.ZERO:
+				# reduce look strength when input is not registered as movement
+				proxy_distance *= 0.2
+			else:
+				# snap to intended move direction
+				var coords_direction = global_position.direction_to(coords_pos)
+				var angle_difference = coords_direction.dot(proxy_direction)
+				var snap_weight = ease(remap(angle_difference, 0.7, 1.0, 0.0, 1.0), 1.4)
+				proxy_direction = proxy_direction.slerp(coords_direction, snap_weight)
+			
+			var proxy_offset = proxy_direction * proxy_distance
+			target_vector = eye.global_position + proxy_offset
+		_:
+			target_vector = coords_pos
+	
+	eye.target_vector = target_vector
 
 # TRAVERSAL -------------------------------------------------------------------------------------- #
 
