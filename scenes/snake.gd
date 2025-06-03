@@ -199,6 +199,8 @@ func collide(collision_coords : Vector2, duration : float, hit_wall : bool):
 	else:
 		head.propagate(head.bump.bind(collision_coords, bump_distance, duration), 0.03)
 	
+	eye.start_spin(duration)
+	
 	collide_sfx.play_random()
 	collided.emit()
 
