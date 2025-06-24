@@ -16,10 +16,11 @@ func _ready() -> void:
 	MapManager.begin_background_pulse()
 
 func populate_grid():
-	var playfield : Vector2 = get_window().size * 0.6
+	var viewport_size : Vector2 = get_viewport_rect().size
+	var playfield : Vector2 = viewport_size * 0.6
 	var cols : int = floori(playfield.x / MapManager.get_hex_width() / MapManager.HEX_COL_RATIO)
 	var rows : int = floori(playfield.y / MapManager.get_hex_width() / MapManager.HEX_ROW_RATIO)
-	var window_center : Vector2 = get_window().size * 0.5
+	var window_center : Vector2 = viewport_size * 0.5
 	var map_dimensions := Vector2i(cols, rows)
 	var map_size = (Vector2(map_dimensions) - Vector2(1.0, 0.5)) * Vector2(0.75, 0.866) * MapManager.get_hex_width()
 	MapManager.grid_map_origin = window_center - (map_size * 0.5)
@@ -35,9 +36,9 @@ func populate_grid():
 
 func generate_grid(side_length : int):
 	var long_diagonal : int = (2 * side_length) - 1
-	var window_size : Vector2 = get_window().size
-	var playfield = window_size * 0.6
-	MapManager.grid_map_origin = window_size * 0.5
+	var viewport_size : Vector2 = get_viewport_rect().size
+	var playfield = viewport_size * 0.6
+	MapManager.grid_map_origin = viewport_size * 0.5
 	MapManager.hex_scale = playfield.x / long_diagonal * 0.59 # magic number to fix scale
 	
 	var grid_center_offset = Vector2(-side_length + 1, side_length - 1)
@@ -60,10 +61,10 @@ func generate_grid(side_length : int):
 
 func populate_screen_remainder():
 	var grid := MapManager.valid_coords.keys()
-	var screen_size : Vector2 = get_window().size
+	var viewport_size : Vector2 = get_viewport_rect().size
 	var edge_coverage = 2
-	var cols : int = edge_coverage + floori(screen_size.x / MapManager.get_hex_width() / MapManager.HEX_COL_RATIO)
-	var rows : int = edge_coverage + floori(screen_size.y / MapManager.get_hex_width() / MapManager.HEX_ROW_RATIO)
+	var cols : int = edge_coverage + floori(viewport_size.x / MapManager.get_hex_width() / MapManager.HEX_COL_RATIO)
+	var rows : int = edge_coverage + floori(viewport_size.y / MapManager.get_hex_width() / MapManager.HEX_ROW_RATIO)
 	var origin_offset = floor(Vector2i(cols, floori(rows / 2.0)) / 2.0)
 	
 	for i in cols:
