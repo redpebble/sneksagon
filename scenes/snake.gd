@@ -60,8 +60,8 @@ func update_eye_target():
 			else:
 				# snap to intended move direction
 				var coords_direction = global_position.direction_to(coords_pos)
-				var angle_difference = coords_direction.dot(proxy_direction)
-				var snap_weight = ease(remap(angle_difference, 0.7, 1.0, 0.0, 1.0), 1.4)
+				var angle_distance = coords_direction.dot(proxy_direction)
+				var snap_weight = ease(remap(angle_distance, 0.7, 1.0, 0.0, 1.0), 1.4)
 				proxy_direction = proxy_direction.slerp(coords_direction, snap_weight)
 			
 			var proxy_offset = proxy_direction * proxy_distance

@@ -14,7 +14,7 @@ config/name="sneksagon"
 config/tags=PackedStringArray("collab", "jasper")
 run/main_scene="uid://diuykrg1nilh"
 config/features=PackedStringArray("4.4", "GL Compatibility")
-config/icon="uid://po2vp1e047bt"
+config/icon="uid://cg8gu88o1w6my"
 
 [autoload]
 
