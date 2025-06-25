@@ -60,8 +60,8 @@ func update_eye_target():
 			else:
 				# snap to intended move direction
 				var coords_direction = global_position.direction_to(coords_pos)
-				var angle_difference = coords_direction.dot(proxy_direction)
-				var snap_weight = ease(remap(angle_difference, 0.7, 1.0, 0.0, 1.0), 1.4)
+				var angle_diff = coords_direction.dot(proxy_direction)
+				var snap_weight = ease(remap(angle_diff, 0.7, 1.0, 0.0, 1.0), 1.4)
 				proxy_direction = proxy_direction.slerp(coords_direction, snap_weight)
 			
 			var proxy_offset = proxy_direction * proxy_distance
@@ -90,7 +90,6 @@ func _on_move_action_pressed():
 func move() -> void:
 	if is_moving():
 		return
-	
 	var to_coords = MapManager.get_adjacent_hex_coords(head.grid_coords, move_vector)
 	var collision_flags = handle_collisions(to_coords)
 	
@@ -100,9 +99,11 @@ func move() -> void:
 	# NORMAL MOVEMENT
 	else:
 		move_sfx.play_random()
-		head.propagate(head.move.bind(to_coords, move_interval))
-		if automatic_movement:
-			move_timer.start(move_interval)
+		var move_action = head.propagate.bind(head.move.bind(to_coords, move_interval))
+		MapManager.action_queue.queue(move_action, 2)
+	
+	if automatic_movement:
+		move_timer.start(move_interval * 2)
 	
 	var dest_position = MapManager.get_hex_world_position(to_coords)
 	var move_direction = global_position.direction_to(dest_position)
@@ -158,7 +159,7 @@ func round_hexagonal(base_vector) -> Vector2:
 		hex_direction = move_vector
 	return hex_direction
 
-## Executes specific logic per entity type and then
+## Executes specific logic per entity type and
 ## returns collision flags: [hit_wall, bump]
 func handle_collisions(to_coords : Vector2) -> Array:
 	var hit_wall := false
@@ -171,7 +172,7 @@ func handle_collisions(to_coords : Vector2) -> Array:
 		bump = true
 	elif entities_at_coords:
 		for e in entities_at_coords:
-			var is_body_part = e is SnakeHex && e != get_tail() and get_length() > 2
+			var is_body_part = e is SnakeHex and e != get_tail()
 			var is_obstacle = is_body_part or e is BlockHex
 			var is_collectable = e is AppleHex and not e.collected
 			
@@ -180,10 +181,10 @@ func handle_collisions(to_coords : Vector2) -> Array:
 				detach_at(e)
 			
 			if is_collectable:
+				MapManager.action_queue.queue(e.eat, 1)
+				MapManager.action_queue.queue(extend, 3)
 				head.propagate(head.swell.bind(1.15, 0.3), 0.15)
-				e.eat()
 				fangs.close()
-				extend()
 			
 			if is_obstacle:
 				bump = true
@@ -214,7 +215,10 @@ func die():
 
 ## Creates the base segment of a snake at the given coordinates.
 func make_head(hex_coords : Vector2) -> void:
-	head = MapManager.create_hex(snake_hex_scene.instantiate(), hex_coords, MapManager.Layers.ENTITIES, color.lightened(0.15))
+	var s = snake_hex_scene.instantiate()
+	var c = hex_coords
+	var l = MapManager.Layers.ENTITIES
+	head = MapManager.create_hex(s, c, l, color.lightened(0.15))
 	head.set_shape_state(0)
 	if automatic_movement:
 		move_timer.start(move_interval)
@@ -223,10 +227,14 @@ func make_head(hex_coords : Vector2) -> void:
 func extend() -> void:
 	var tail := get_tail()
 	if tail:
-		var new_hex : SnakeHex = MapManager.create_hex(snake_hex_scene.instantiate(), tail.grid_coords, MapManager.Layers.ENTITIES, color)
+		var s = snake_hex_scene.instantiate()
+		var c = tail.grid_coords
+		var l = MapManager.Layers.ENTITIES
+		var new_hex : SnakeHex = MapManager.create_hex(s, c, l, color)
 		new_hex.set_shape_state(2)
 		tail.next_segment = new_hex
 		new_hex.prev_segment = tail
+		print("extended")
 
 ## Detaches the given segment and all that follow it.
 func detach_at(segment : SnakeHex):

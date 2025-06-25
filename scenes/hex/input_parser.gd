@@ -5,12 +5,16 @@ signal move_action_pressed
 enum input_types {MOUSE, KEYBOARD, CONTROLLER}
 @export var input_type := input_types.MOUSE
 
+var move_timeout : SceneTreeTimer = null
 var key_input_queue : Array[String] = []
 
 func _process(_delta: float) -> void:
 	update_key_input_queue()
 	if Input.is_action_pressed("move"):
-		move_action_pressed.emit()
+		if move_timeout == null or move_timeout.time_left == 0:
+			move_action_pressed.emit()
+			move_timeout = get_tree().create_timer(0.01)
+
 
 func update_key_input_queue():
 	for i in MapManager.directions.keys():

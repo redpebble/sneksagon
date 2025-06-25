@@ -1,6 +1,11 @@
-[gd_scene load_steps=2 format=3 uid="uid://cocnmugmr5pd0"]
+[gd_scene load_steps=3 format=3 uid="uid://cocnmugmr5pd0"]
 
 [ext_resource type="Script" uid="uid://m1k3teg1f01l" path="res://scenes/singleton/map_manager.gd" id="1_j4mo1"]
+[ext_resource type="Script" uid="uid://bdnfwcb010f5b" path="res://scenes/singleton/action_queue.gd" id="2_aevwq"]
 
 [node name="MapManager" type="Node"]
+process_priority = -1
 script = ExtResource("1_j4mo1")
+
+[node name="ActionQueue" type="Node" parent="."]
+script = ExtResource("2_aevwq")

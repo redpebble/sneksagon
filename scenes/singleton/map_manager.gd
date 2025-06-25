@@ -5,6 +5,8 @@ signal hex_scale_changed(scale)
 const HEX_COL_RATIO = 0.75
 const HEX_ROW_RATIO = 0.866
 
+@onready var action_queue := $ActionQueue
+
 var map_node : Node2D = null
 var wave_timer : SceneTreeTimer = null
 
@@ -33,6 +35,11 @@ enum Layers {
 	TILES,
 	ENTITIES
 }
+
+func _process(_delta: float) -> void:
+	if not action_queue.is_empty():
+		action_queue.execute_queue()
+		#print("-----")
 
 func set_hex_scale(_hex_scale):
 	hex_scale = _hex_scale
@@ -79,6 +86,7 @@ func create_hex(hex_instance : Hex, coords : Vector2, layer : int, color := Colo
 			record_entity(hex_instance, coords)
 	
 	map_node.call_deferred("add_child", hex_instance)
+	
 	return hex_instance
 
 func clear() -> void:
@@ -127,7 +135,7 @@ func record_entity(hex : Hex, coords : Vector2):
 
 func get_random_empty_cell():
 	var open_cells : Dictionary = valid_coords.duplicate()
-	for i in entities:
+	for i in entities.keys():
 		open_cells.erase(i)
 	if open_cells:
 		var rand_idx = randi() % open_cells.size()
@@ -145,6 +153,7 @@ func spawn_apple() -> void:
 		var apple_inst : AppleHex = apple_scene.instantiate()
 		apple_inst.just_collected.connect(_on_apple_just_collected)
 		create_hex(apple_inst, empty_cell, MapManager.Layers.ENTITIES, Color.RED)
+		print("apple spawned at ", empty_cell)
 	else:
 		push_warning("No empty cells. Apple not spawned.")
 
@@ -153,8 +162,9 @@ func spawn_block(at_coords : Vector2) -> void:
 		return
 	create_hex(block_scene.instantiate(), at_coords, MapManager.Layers.ENTITIES, Color.BLUE)
 
-func _on_apple_just_collected() -> void:
-	spawn_apple()
+func _on_apple_just_collected(apple : AppleHex) -> void:
+	erase_entity(apple)
+	action_queue.queue(spawn_apple, 4)
 
 func scale_to_hex_width(node: Node2D, input_width : float):
 	if input_width == 0.0:
