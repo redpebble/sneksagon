@@ -16,7 +16,7 @@ var initial_spin_direction : Vector2
 var spin_timer : SceneTreeTimer = null
 
 func _ready() -> void:
-	MapManager.scale_to_hex_width(self, iris.texture.get_width() * 1.2)
+	MapManager.scale_to_hex_width(self, iris.texture.get_width() * 1.4)
 
 func _process(delta: float) -> void:
 	spin_target_vector()
