@@ -1,8 +1,14 @@
-[gd_scene load_steps=4 format=3 uid="uid://b2k5i8r31na11"]
+[gd_scene load_steps=6 format=3 uid="uid://b2k5i8r31na11"]
 
 [ext_resource type="Script" uid="uid://bpawfpvq563jl" path="res://scenes/hex/hex.gd" id="1_b6u1t"]
+[ext_resource type="Shader" uid="uid://7aclcdsdp4p" path="res://general/shaders/flash.gdshader" id="2_mt2d2"]
 [ext_resource type="Texture2D" uid="uid://b15yv8sjscam0" path="res://assets/Textures/circle.png" id="2_wcvii"]
 [ext_resource type="Texture2D" uid="uid://ppg0l17q6cps" path="res://assets/Textures/snake_eye/outer_shadow.png" id="3_k6t16"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_mt2d2"]
+resource_local_to_scene = true
+shader = ExtResource("2_mt2d2")
+shader_parameter/strength = 0.0
 
 [node name="Hex" type="Node2D"]
 script = ExtResource("1_b6u1t")
@@ -12,6 +18,7 @@ polygon = PackedVector2Array(1, 0, 0.5, 0.866, -0.5, 0.866, -1, 0, -0.5, -0.866,
 
 [node name="Circle" type="Sprite2D" parent="."]
 visible = false
+material = SubResource("ShaderMaterial_mt2d2")
 scale = Vector2(0.00270996, 0.00270996)
 texture = ExtResource("2_wcvii")
 

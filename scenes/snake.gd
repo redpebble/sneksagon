@@ -3,6 +3,7 @@ extends Node2D
 
 signal collided
 signal died
+signal segment_detached
 
 @export var color := Color.BLACK
 @export var base_move_interval : float = 0.2 # seconds
@@ -180,10 +181,12 @@ func handle_collisions(to_coords : Vector2) -> Array:
 				detach_at(e)
 			
 			if is_collectable:
-				head.propagate(head.swell.bind(1.15, 0.3), 0.15)
+				var m = ModifierManager.get_modifier_at(e)
+				
+				#head.propagate(head.swell.bind(1.15, 0.3), 0.15)
 				e.eat()
 				fangs.close()
-				extend()
+				extend(m)
 			
 			if is_obstacle:
 				bump = true
@@ -214,19 +217,24 @@ func die():
 
 ## Creates the base segment of a snake at the given coordinates.
 func make_head(hex_coords : Vector2) -> void:
-	head = MapManager.create_hex(snake_hex_scene.instantiate(), hex_coords, MapManager.Layers.ENTITIES, color.lightened(0.15))
-	head.set_shape_state(0)
+	head = MapManager.create_hex(snake_hex_scene.instantiate(), hex_coords, MapManager.Layers.ENTITIES)
+	head.set_shape_state(2)
 	if automatic_movement:
 		move_timer.start(move_interval)
 
 ## Creates a new segment at the tail's grid coordinates.
-func extend() -> void:
+func extend(modifier : Modifier = null) -> void:
 	var tail := get_tail()
 	if tail:
-		var new_hex : SnakeHex = MapManager.create_hex(snake_hex_scene.instantiate(), tail.grid_coords, MapManager.Layers.ENTITIES, color)
+		var new_hex : SnakeHex = MapManager.create_hex(snake_hex_scene.instantiate(), tail.grid_coords, MapManager.Layers.ENTITIES)
 		new_hex.set_shape_state(2)
 		tail.next_segment = new_hex
 		new_hex.prev_segment = tail
+		# Connect signals
+		new_hex.detach_started.connect(_on_segment_detached)
+		# Transfer modifier to segment
+		if modifier:
+			ModifierManager.add_exisiting_modifier(new_hex, modifier)
 
 ## Detaches the given segment and all that follow it.
 func detach_at(segment : SnakeHex):
@@ -248,3 +256,8 @@ func get_length() -> int:
 		length += 1
 		current_hex = current_hex.next_segment
 	return length
+
+# SIGNALS ---------------------------------------------------------------------#
+
+func _on_segment_detached():
+	segment_detached.emit()

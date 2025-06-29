@@ -21,6 +21,7 @@ config/icon="uid://cg8gu88o1w6my"
 MapManager="*res://scenes/singleton/map_manager.gd"
 Highlighter="*res://scenes/singleton/highlighter.tscn"
 GameManager="*res://scenes/singleton/game_manager.tscn"
+ModifierManager="*res://scenes/singleton/modifier_manager.tscn"
 
 [display]
 

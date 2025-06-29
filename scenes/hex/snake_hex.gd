@@ -1,6 +1,7 @@
 class_name SnakeHex
 extends ObjectHex
 
+signal detach_started
 signal detach_finished
 
 var propagation_timer : SceneTreeTimer = null
@@ -12,7 +13,7 @@ func _process(_delta: float) -> void:
 
 func _draw() -> void:
 	if next_segment:
-		draw_line(Vector2.ZERO, to_local(next_segment.global_position), modulate, 1)
+		draw_line(Vector2.ZERO, to_local(next_segment.global_position), Color.BLACK, 1)
 
 ## Calls the provided function first, then has the next segment do the same.
 func propagate(method : Callable, delay_interval := 0.0) -> void:
@@ -35,6 +36,7 @@ func propagate(method : Callable, delay_interval := 0.0) -> void:
 		next_segment.propagate(method, delay_interval)
 
 func detach(duration := 0.2):
+	detach_started.emit()
 	if prev_segment:
 		prev_segment.next_segment = null
 	MapManager.erase_entity(self)

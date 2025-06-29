@@ -52,6 +52,7 @@ z_index = 100
 script = ExtResource("6_oj63r")
 
 [node name="HeadShape" type="Sprite2D" parent="HeadCosmetics/Eye"]
+visible = false
 modulate = Color(0, 0, 0, 1)
 scale = Vector2(0.95, 0.95)
 texture = ExtResource("9_fwnpn")

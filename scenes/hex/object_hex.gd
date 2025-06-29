@@ -1,7 +1,8 @@
 class_name ObjectHex
 extends Hex
 
-signal moved(hex_node, from_pos, to_pos)
+signal changed_coords(hex_node, from_pos, to_pos)
+signal moved
 signal bump_finished
 
 @onready var last_coords := grid_coords
@@ -24,7 +25,8 @@ func move(to_coords : Vector2, duration := 0.3) -> Tween:
 	move_tween = create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_SINE)
 	move_tween.tween_property(self, "global_position", MapManager.get_hex_world_position(to_coords), duration)
 	
-	moved.emit(self, last_coords, to_coords)
+	moved.emit()
+	changed_coords.emit(self, last_coords, to_coords)
 	grid_coords = to_coords
 	return move_tween
 

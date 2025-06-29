@@ -8,10 +8,16 @@
 [node name="AppleHex" instance=ExtResource("1_2jo77")]
 script = ExtResource("2_tyydu")
 
-[node name="EatSFX" type="AudioStreamPlayer2D" parent="." index="1"]
+[node name="EatSFX" type="AudioStreamPlayer2D" parent="." index="0"]
 stream = ExtResource("3_wwd5y")
 volume_db = 8.0
 bus = &"SFX"
 script = ExtResource("3_tt3sy")
 pitch_variance = 0.04
 metadata/_custom_type_script = "uid://yi24ab38vuqq"
+
+[node name="Polygon2D" parent="." index="1"]
+modulate = Color(1, 0, 0, 1)
+
+[node name="Circle" parent="." index="2"]
+modulate = Color(1, 0, 0, 1)

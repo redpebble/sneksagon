@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://cqu4bw4e7j243"]
+
+[ext_resource type="Script" uid="uid://bh6flaqthnxol" path="res://general/modifier.gd" id="1_c267k"]
+[ext_resource type="Texture2D" uid="uid://b15yv8sjscam0" path="res://assets/Textures/circle.png" id="2_3rpj7"]
+
+[node name="TestModifier" type="Node2D"]
+script = ExtResource("1_c267k")
+mod_name = "TestMod"
+local_trigger = 1
+
+[node name="placeholder" type="Sprite2D" parent="."]
+scale = Vector2(0.003, 0.003)
+texture = ExtResource("2_3rpj7")

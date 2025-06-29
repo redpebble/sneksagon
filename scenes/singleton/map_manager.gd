@@ -64,11 +64,10 @@ func get_adjacent_hex_coords(coords : Vector2, direction : Vector2) -> Vector2:
 		directions.down_right: return coords + Vector2(1, 0)
 		_: return coords
 
-func create_hex(hex_instance : Hex, coords : Vector2, layer : int, color := Color.BLACK) -> Node2D:
+func create_hex(hex_instance : Hex, coords : Vector2, layer : int) -> Node2D:
 	hex_instance.grid_coords = coords
 	hex_instance.scale *= hex_scale
 	hex_instance.position = get_hex_world_position(coords)
-	hex_instance.modulate = color
 	
 	match layer:
 		Layers.BACKGROUND:
@@ -89,8 +88,8 @@ func clear() -> void:
 			#delete the entity
 			i.queue_free()
 
-# update entity data when moved
-func _on_hex_moved(hex : Hex, from_coords : Vector2, to_coords : Vector2):
+# update entity data when coordinates change
+func _on_hex_changed_coords(hex : Hex, from_coords : Vector2, to_coords : Vector2):
 	erase_entity(hex, from_coords)
 	record_entity(hex, to_coords)
 
@@ -105,7 +104,7 @@ func erase_entity(hex : Hex, coords : Vector2 = hex.grid_coords) -> void:
 	if entities.get(coords) != null:
 		#erase entity
 		if entities[coords].has(hex):
-			hex.moved.disconnect(_on_hex_moved)
+			hex.changed_coords.disconnect(_on_hex_changed_coords)
 			hex.tree_exiting.disconnect(_on_hex_tree_exiting.bind(hex))
 			entities[coords].erase(hex)
 		else:
@@ -118,7 +117,7 @@ func erase_entity(hex : Hex, coords : Vector2 = hex.grid_coords) -> void:
 
 # record entity at specified coordinates
 func record_entity(hex : Hex, coords : Vector2):
-	hex.moved.connect(_on_hex_moved)
+	hex.changed_coords.connect(_on_hex_changed_coords)
 	hex.tree_exiting.connect(_on_hex_tree_exiting.bind(hex))
 	if entities.get(coords):
 		entities[coords].append(hex)
@@ -144,14 +143,14 @@ func spawn_apple() -> void:
 	if empty_cell != null:
 		var apple_inst : AppleHex = apple_scene.instantiate()
 		apple_inst.just_collected.connect(_on_apple_just_collected)
-		create_hex(apple_inst, empty_cell, MapManager.Layers.ENTITIES, Color.RED)
+		create_hex(apple_inst, empty_cell, MapManager.Layers.ENTITIES)
 	else:
 		push_warning("No empty cells. Apple not spawned.")
 
 func spawn_block(at_coords : Vector2) -> void:
 	if not is_empty_cell(at_coords):
 		return
-	create_hex(block_scene.instantiate(), at_coords, MapManager.Layers.ENTITIES, Color.BLUE)
+	create_hex(block_scene.instantiate(), at_coords, MapManager.Layers.ENTITIES)
 
 func _on_apple_just_collected() -> void:
 	spawn_apple()

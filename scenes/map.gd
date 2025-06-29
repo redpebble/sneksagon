@@ -31,8 +31,8 @@ func populate_grid():
 			var shift_amount : int = floori(0.5 * i) * -1
 			var adjusted_j   : int = j + shift_amount
 			var d = wrapi(adjusted_j - wrapi(i, 0, 3), 0, 3) * grid_contrast
-			MapManager.create_hex(hex_scene.instantiate(), Vector2(i, adjusted_j), MapManager.Layers.TILES, hex_color.darkened(d))
-
+			var h = MapManager.create_hex(hex_scene.instantiate(), Vector2(i, adjusted_j), MapManager.Layers.TILES)
+			h.modulate = hex_color.darkened(d)
 
 func generate_grid(side_length : int):
 	var long_diagonal : int = (2 * side_length) - 1
@@ -57,7 +57,8 @@ func generate_grid(side_length : int):
 			var d = wrapi(j + wrapi(i + i_shift , 0, 3), 0, 3) * grid_contrast
 			# create hex with respect the grid's center
 			var hex_coords = grid_center_offset + Vector2(i + i_shift, -j)
-			MapManager.create_hex(hex_scene.instantiate(), hex_coords, MapManager.Layers.TILES, hex_color.darkened(d))
+			var h = MapManager.create_hex(hex_scene.instantiate(), hex_coords, MapManager.Layers.TILES)
+			h.modulate = hex_color.darkened(d)
 
 func populate_screen_remainder():
 	var grid := MapManager.valid_coords.keys()
@@ -76,4 +77,5 @@ func populate_screen_remainder():
 			if not grid.has(coords):
 				# brightness patterning
 				#var d = wrapi(coords.y - wrapi(i, 0, 3), 0, 3) * grid_contrast
-				MapManager.create_hex(hex_scene.instantiate(), coords, MapManager.Layers.BACKGROUND, Color(Color.BLACK, 0.25))
+				var h = MapManager.create_hex(hex_scene.instantiate(), coords, MapManager.Layers.BACKGROUND)
+				h.modulate = Color(Color.BLACK, 0.25)

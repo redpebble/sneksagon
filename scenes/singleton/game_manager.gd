@@ -1,5 +1,7 @@
 extends Node
 
+signal snake_segment_detached
+
 @export var snake_scene : PackedScene
 
 var snake : Snake = null
@@ -22,6 +24,8 @@ func create_snake(init_coords : Vector2):
 		snake.collided.connect(_on_snake_collided)
 	await get_tree().process_frame
 	snake.make_head(init_coords)
+	# Signal Connection
+	snake.segment_detached.connect(snake_segment_detached.emit)
 
 func _on_snake_died():
 	reset_level()
