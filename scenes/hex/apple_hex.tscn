@@ -1,9 +1,20 @@
-[gd_scene load_steps=5 format=3 uid="uid://bxku4o1ucskd1"]
+[gd_scene load_steps=8 format=3 uid="uid://bxku4o1ucskd1"]
 
 [ext_resource type="PackedScene" uid="uid://cpjrl6jigt8x4" path="res://scenes/hex/object_hex.tscn" id="1_2jo77"]
 [ext_resource type="Script" uid="uid://j1xyknyy4m2t" path="res://scenes/hex/apple_hex.gd" id="2_tyydu"]
 [ext_resource type="Script" uid="uid://yi24ab38vuqq" path="res://general/VariableStreamPlayer2D.gd" id="3_tt3sy"]
 [ext_resource type="AudioStream" uid="uid://crtulwa0kj1qo" path="res://assets/Audio/SFX/collect_2.wav" id="3_wwd5y"]
+[ext_resource type="Shader" uid="uid://7aclcdsdp4p" path="res://general/shaders/flash.gdshader" id="5_3scvu"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_3scvu"]
+resource_local_to_scene = true
+shader = ExtResource("5_3scvu")
+shader_parameter/strength = 0.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_1aesg"]
+resource_local_to_scene = true
+shader = ExtResource("5_3scvu")
+shader_parameter/strength = 0.0
 
 [node name="AppleHex" instance=ExtResource("1_2jo77")]
 script = ExtResource("2_tyydu")
@@ -19,5 +30,12 @@ metadata/_custom_type_script = "uid://yi24ab38vuqq"
 [node name="Polygon2D" parent="." index="1"]
 modulate = Color(1, 0, 0, 1)
 
-[node name="Circle" parent="." index="2"]
+[node name="Hexagon" parent="." index="2"]
+visible = false
 modulate = Color(1, 0, 0, 1)
+material = SubResource("ShaderMaterial_3scvu")
+
+[node name="Circle" parent="." index="3"]
+visible = true
+modulate = Color(1, 0, 0, 1)
+material = SubResource("ShaderMaterial_1aesg")

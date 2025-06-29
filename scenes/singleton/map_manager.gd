@@ -192,5 +192,5 @@ func begin_background_pulse():
 	all_coords.shuffle()
 	while not all_coords.is_empty():
 		var hex = background[all_coords.pop_back()]
-		hex.loop(hex.pulse.bind(0.15, 8.0), 0.3)
+		hex.loop(hex.pulse.bind(0.08, 9.0), 0.3)
 		await get_tree().create_timer(pulse_interval).timeout

@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://diuykrg1nilh"]
 
 [ext_resource type="Script" uid="uid://6joi0b4nq07b" path="res://scenes/map.gd" id="1_4xfga"]
-[ext_resource type="Shader" uid="uid://3580qhc8ixlk" path="res://scenes/shaders/plasma_wave.gdshader" id="2_gldc4"]
+[ext_resource type="Shader" uid="uid://3580qhc8ixlk" path="res://general/shaders/plasma_wave.gdshader" id="2_gldc4"]
 [ext_resource type="PackedScene" uid="uid://dbk3p3q8hhi52" path="res://scenes/camera/camera.tscn" id="2_paxxb"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_0cso3"]

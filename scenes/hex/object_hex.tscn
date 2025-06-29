@@ -1,7 +1,19 @@
-[gd_scene load_steps=3 format=3 uid="uid://cpjrl6jigt8x4"]
+[gd_scene load_steps=5 format=3 uid="uid://cpjrl6jigt8x4"]
 
 [ext_resource type="PackedScene" uid="uid://b2k5i8r31na11" path="res://scenes/hex/hex.tscn" id="1_42sxs"]
 [ext_resource type="Script" uid="uid://cyohtf0mfy4sm" path="res://scenes/hex/object_hex.gd" id="2_jen7i"]
+[ext_resource type="Shader" uid="uid://7aclcdsdp4p" path="res://general/shaders/flash.gdshader" id="3_hp1wu"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_magqt"]
+resource_local_to_scene = true
+shader = ExtResource("3_hp1wu")
+shader_parameter/strength = 0.0
 
 [node name="ObjectHex" instance=ExtResource("1_42sxs")]
 script = ExtResource("2_jen7i")
+
+[node name="Hexagon" parent="." index="1"]
+material = SubResource("ShaderMaterial_magqt")
+
+[node name="Circle" parent="." index="2"]
+material = SubResource("ShaderMaterial_magqt")

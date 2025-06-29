@@ -8,7 +8,7 @@ var scale_tween : Tween = null
 var flash_tween : Tween = null
 
 @onready var original_color := modulate
-@onready var flash_shader : ShaderMaterial = $Circle.material
+
 
 func _ready() -> void:
 	scale *= scale_factor
@@ -16,13 +16,13 @@ func _ready() -> void:
 func set_shape_state(state : int):
 	match(state):
 		0:
-			$Polygon2D.visible = false
+			$Hexagon.visible = false
 			$Circle.visible = false
 		1:
-			$Polygon2D.visible = true
+			$Hexagon.visible = true
 			$Circle.visible = false
 		2:
-			$Polygon2D.visible = false
+			$Hexagon.visible = false
 			$Circle.visible = true
 
 func swell(scale_multiplier : float, duration : float):
@@ -48,7 +48,7 @@ func pulse(amount : float, duration : float) -> Tween:
 	if flash_tween:
 		flash_tween.kill()
 	flash_tween = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	flash_tween.tween_method(_set_flash_strength, get_flash_strength(), amount, duration * 0.5)
+	flash_tween.tween_method(_set_flash_strength, 0.0, amount, duration * 0.5)
 	flash_tween.tween_method(_set_flash_strength, amount, 0.0, duration * 0.5)
 	
 	return flash_tween
@@ -67,13 +67,9 @@ func flash(amount : float, duration : float) -> Tween:
 	if flash_tween:
 		flash_tween.kill()
 	flash_tween = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	flash_tween.tween_method(_set_flash_strength, 1.0, 0.0, duration)
+	flash_tween.tween_method(_set_flash_strength, amount, 0.0, duration)
 	return flash_tween
 
 func _set_flash_strength(value : float) -> void:
-	flash_shader.set_shader_parameter("strength", value)
-func get_flash_strength() -> float:
-	if flash_shader:
-		return flash_shader.get_shader_parameter("strength")
-	else:
-		return 0.0
+	$Circle.material.set_shader_parameter("strength", value)
+	$Hexagon.material.set_shader_parameter("strength", value)

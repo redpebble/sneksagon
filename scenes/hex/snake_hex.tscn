@@ -1,7 +1,18 @@
-[gd_scene load_steps=3 format=3 uid="uid://c1uwc3r8l8fce"]
+[gd_scene load_steps=6 format=3 uid="uid://c1uwc3r8l8fce"]
 
 [ext_resource type="PackedScene" uid="uid://cpjrl6jigt8x4" path="res://scenes/hex/object_hex.tscn" id="1_hqyrv"]
 [ext_resource type="Script" uid="uid://dha33ypyxlm5s" path="res://scenes/hex/snake_hex.gd" id="2_hqyrv"]
+[ext_resource type="Shader" uid="uid://7aclcdsdp4p" path="res://general/shaders/flash.gdshader" id="3_mk5my"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_mk5my"]
+resource_local_to_scene = true
+shader = ExtResource("3_mk5my")
+shader_parameter/strength = 0.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_frytm"]
+resource_local_to_scene = true
+shader = ExtResource("3_mk5my")
+shader_parameter/strength = 0.0
 
 [node name="SnakeHex" instance=ExtResource("1_hqyrv")]
 script = ExtResource("2_hqyrv")
@@ -9,5 +20,9 @@ script = ExtResource("2_hqyrv")
 [node name="Polygon2D" parent="." index="0"]
 modulate = Color(0, 0, 0, 1)
 
-[node name="Circle" parent="." index="1"]
+[node name="Hexagon" parent="." index="1"]
+material = SubResource("ShaderMaterial_mk5my")
+
+[node name="Circle" parent="." index="2"]
 modulate = Color(0, 0, 0, 1)
+material = SubResource("ShaderMaterial_frytm")
