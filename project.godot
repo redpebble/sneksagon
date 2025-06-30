@@ -22,7 +22,7 @@ MapManager="*res://scenes/singleton/map_manager.gd"
 Highlighter="*res://scenes/singleton/highlighter.tscn"
 GameManager="*res://scenes/singleton/game_manager.tscn"
 ModifierManager="*res://scenes/singleton/modifier_manager.tscn"
-ScreenshotTool="*res://scenes/singleton/screenshot_tool.tscn"
+ScreenshotTool="*res://scenes/singleton/screenshot_tool/screenshot_tool.tscn"
 
 [display]
 
