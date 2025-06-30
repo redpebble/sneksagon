@@ -177,8 +177,7 @@ func handle_collisions(to_coords : Vector2) -> Array:
 			var is_collectable = e is AppleHex and not e.collected
 			
 			if is_body_part:
-				# detach segments after collision point
-				detach_at(e)
+				detach_at(e, false)
 			
 			if is_collectable:
 				var m = ModifierManager.get_modifier_at(e)
@@ -198,7 +197,7 @@ func collide(collision_coords : Vector2, duration : float, hit_wall : bool):
 	if hit_wall:
 		# only animate the head bumping
 		head.bump(collision_coords, bump_distance, duration)
-		detach_at(head.next_segment)
+		detach_at(head.next_segment, true)
 	else:
 		head.propagate(head.bump.bind(collision_coords, bump_distance, duration), 0.03)
 	
@@ -236,10 +235,24 @@ func extend(modifier : Modifier = null) -> void:
 		if modifier:
 			ModifierManager.add_exisiting_modifier(new_hex, modifier)
 
-## Detaches the given segment and all that follow it.
-func detach_at(segment : SnakeHex):
+## Detaches the given segment
+## with the option to propagate to following segments
+func detach_at(segment : SnakeHex, propagate : bool):
+	var animation_duration = 0.15
 	if segment and segment != head:
-		segment.propagate(segment.detach.bind(0.15), 0.04)
+		if propagate:
+			var interval = 0.04
+			segment.propagate(segment.detach, interval)
+		else:
+			var leader = segment.prev_segment
+			var replacement = segment.next_segment
+			if replacement:
+				var target_coords = segment.grid_coords
+				segment.prev_segment = null
+				segment.detach()
+				replacement.prev_segment = leader
+				leader.next_segment = replacement
+				replacement.propagate(replacement.move.bind(target_coords, move_interval))
 
 ## Gets the snake's last segment.
 func get_tail() -> SnakeHex:

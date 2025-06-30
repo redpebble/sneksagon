@@ -17,7 +17,6 @@ func _ready() -> void:
 func move(to_coords : Vector2, duration := 0.3) -> Tween:
 	if move_tween:
 		move_tween.kill()
-	
 	last_coords = grid_coords
 	# do not "move" if position would not change
 	if to_coords == last_coords:

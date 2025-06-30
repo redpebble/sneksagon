@@ -35,7 +35,7 @@ func propagate(method : Callable, delay_interval := 0.0) -> void:
 		method = method.bindv(args)
 		next_segment.propagate(method, delay_interval)
 
-func detach(duration := 0.2):
+func detach(duration := 0.15):
 	detach_started.emit()
 	if prev_segment:
 		prev_segment.next_segment = null
